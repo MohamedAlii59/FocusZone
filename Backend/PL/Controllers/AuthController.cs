@@ -82,15 +82,49 @@ namespace PL.Controllers
         }
 
         /// <summary>
-        /// Initiate external login (Google, GitHub)
+        /// Initiate external login(Google, GitHub)
         /// </summary>
-        [HttpPost("external-login/{provider}")]
+        //[HttpPost("external-login/{provider}")]
+        //public IActionResult ExternalLogin(string provider)
+        //{
+        //    var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Auth");
+        //    var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+        //    return Challenge(properties, provider);
+        //}
+
+
+
+        [HttpGet("external-login/{provider}")]
         public IActionResult ExternalLogin(string provider)
         {
-            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Auth");
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-            return Challenge(properties, provider);
+            if (string.IsNullOrEmpty(provider))
+                return BadRequest(new { error = "Provider is required" });
+
+            // 1. استخراج كل الأنظمة المسجلة في التطبيق ديناميكياً
+            var schemes = _signInManager.GetExternalAuthenticationSchemesAsync().Result;
+
+            // 2. البحث عن النظام المطلوب بدون الالتفات لحالة الأحرف (Case-Insensitive)
+            var targetScheme = schemes.FirstOrDefault(s =>
+                s.Name.Equals(provider, StringComparison.OrdinalIgnoreCase));
+
+            // 3. إذا لم يجد النظام (مثلاً أرسل provider غير موجود كـ facebook وهو غير مسجل)
+            if (targetScheme == null)
+            {
+                return BadRequest(new { error = $"Provider '{provider}' is not supported." });
+            }
+
+            // 4. استخدام الاسم الصحيح تماماً كما هو مسجل بالنظام (سيكون GitHub في حالتك)
+            var schemeName = targetScheme.Name;
+
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Auth", null, Request.Scheme);
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(schemeName, redirectUrl);
+
+            return new ChallengeResult(schemeName, properties);
         }
+
+
+
+
 
         /// <summary>
         /// Callback for external login providers
@@ -129,7 +163,7 @@ namespace PL.Controllers
                 {
                     // Create new user from external login with fetched data only
                     user = await _userService.CreateExternalUserAsync(email, firstName, lastName);
-                    
+
                     // Add external login to user
                     var result = await _userManager.AddLoginAsync(user, info);
                     if (!result.Succeeded)
@@ -141,8 +175,13 @@ namespace PL.Controllers
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             // Generate and return JWT token
+           
             var token = _jwtTokenService.GenerateToken(user);
-            return Ok(new { message = "External login successful", userId = user.Id, email = user.Email, token = token });
+
+            // توجيه المستخدم للفرونت إند مرة أخرى ومعه التوكن والإيميل
+            var frontendUrl = $"{_configuration["AppSettings:FrontendUrl"]}/external-login-callback?token={token}&email={Uri.EscapeDataString(user.Email)}";
+
+            return Redirect(frontendUrl);
         }
 
         /// <summary>
@@ -204,7 +243,7 @@ namespace PL.Controllers
                 // FindByEmailAsync uses NormalizedEmail which may not be set properly
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Email == model.Email && !u.IsDeleted);
-                
+
                 // If user not found or is deleted, still return success message (security best practice)
                 if (user == null)
                 {
@@ -215,7 +254,11 @@ namespace PL.Controllers
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                 // Build reset URL - frontend will handle the actual reset page
-                var resetUrl = $"{_configuration["AppSettings:FrontendUrl"]}/reset-password?email={Uri.EscapeDataString(user.Email)}&token={Uri.EscapeDataString(resetToken)}";
+                // 1. هنعمل Encode للتوكن باستخدام الـ Base64Url-Safe عشان نضمن حمايته من تشويه المتصفحات
+                var encodedToken = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(System.Text.Encoding.UTF8.GetBytes(resetToken));
+
+                // 2. بنباصي الـ encodedToken الجديد جوه اللينك بدل الـ resetToken الأصلي
+                var resetUrl = $"{_configuration["AppSettings:FrontendUrl"]}/auth/reset-password?email={Uri.EscapeDataString(user.Email)}&token={encodedToken}";
 
                 // Send reset email
                 var htmlBody = $@"
@@ -225,13 +268,13 @@ namespace PL.Controllers
                                 <h2 style='color: #333;'>Password Reset Request</h2>
                                 <p>You have requested to reset your password for your StuckIn account. Click the button below to proceed:</p>
                                 <p style='text-align: center; margin: 30px 0;'>
-                                    <a href='{resetUrl}' style='background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;'>
+                                    <a href='{resetUrl}' target='_self' style='background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;'>
                                         Reset Password
                                     </a>
                                 </p>
                                 <p style='color: #666; font-size: 14px;'>
                                     Or copy and paste this link in your browser:<br>
-                                    <a href='{resetUrl}' style='color: #4CAF50; word-break: break-all;'>{resetUrl}</a>
+                                    <a href='{resetUrl}' target='_self' style='color: #4CAF50; word-break: break-all;'>{resetUrl}</a>
                                 </p>
                                 <hr style='border: none; border-top: 1px solid #ddd; margin: 20px 0;'>
                                 <p style='color: #999; font-size: 12px;'>
@@ -271,7 +314,13 @@ namespace PL.Controllers
                 if (user == null)
                     return BadRequest(new { error = "User not found" });
 
-                var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+                // ⚠️ الخطوة السحرية: فك تشفير التوكن وترجيعه لأصله اللي الـ Identity يفهمه
+                var decodedTokenBytes = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlDecode(model.Token);
+                var originalToken = System.Text.Encoding.UTF8.GetString(decodedTokenBytes);
+
+                // 👈 بنباصي الـ originalToken هنا بدل model.Token
+                var result = await _userManager.ResetPasswordAsync(user, originalToken, model.NewPassword);
+
                 if (result.Succeeded)
                     return Ok(new { message = "Password has been reset successfully. You can now login with your new password" });
 

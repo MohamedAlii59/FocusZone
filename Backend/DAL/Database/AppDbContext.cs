@@ -22,22 +22,22 @@ namespace DAL.Database
 
             // User Configuration
             modelBuilder.Entity<User>()
-                .HasOne(u => u.Country)
-                .WithMany(c => c.Users)
-                .HasForeignKey(u => u.CountryId)
-                .OnDelete(DeleteBehavior.SetNull);
+     .HasOne(u => u.Country)
+     .WithMany(c => c.Users)
+     .HasForeignKey(u => u.CountryId)
+     .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Governorate)
                 .WithMany(g => g.Users)
                 .HasForeignKey(u => u.GovernorateId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.City)
                 .WithMany()
                 .HasForeignKey(u => u.CityId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.UserInterests)

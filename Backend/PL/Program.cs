@@ -8,7 +8,6 @@ using DAL.Entities;
 using DAL.Database;
 using BL.Services;
 using BL.Mapper;
-
 namespace PL
 {
     public class Program
@@ -86,14 +85,15 @@ namespace PL
             {
                 options.AddPolicy("AllowAll", builder =>
                 {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    builder.WithOrigins("http://localhost:4200") 
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials(); 
                 });
             });
 
             // Add AutoMapper
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(m=>m.AddProfile(new MappingProfile()));
 
             // Add Services
             builder.Services.AddScoped<IUserService, UserService>();
@@ -108,8 +108,27 @@ namespace PL
             // Add Controllers
             builder.Services.AddControllers();
 
-            var app = builder.Build();
+           
 
+            var app = builder.Build();
+            // Initialize Database
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<AppDbContext>();
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+                    DbInitializer.InitializeAsync(context, userManager, roleManager).Wait();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred during database initialization");
+                }
+            }
             // Configure the HTTP request pipeline
             if (app.Environment.IsDevelopment())
             {
@@ -127,24 +146,7 @@ namespace PL
 
             app.MapControllers();
 
-            // Initialize Database
-            using (var scope = app.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<AppDbContext>();
-                    var userManager = services.GetRequiredService<UserManager<User>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-                    
-                    DbInitializer.InitializeAsync(context, userManager, roleManager).Wait();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred during database initialization");
-                }
-            }
+           
 
             app.Run();
         }
