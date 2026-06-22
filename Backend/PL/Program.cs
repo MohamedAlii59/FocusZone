@@ -12,16 +12,22 @@ namespace PL
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Configuration
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new InvalidOperationException("DefaultConnection string is not configured in appsettings.json");
+            }
 
             // Add DbContext
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString));
+
 
             // Add Identity
             builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -83,12 +89,13 @@ namespace PL
             // Add CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
+                options.AddPolicy("AllowAll", corsBuilder =>
                 {
-                    builder.WithOrigins("http://localhost:4200") 
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials(); 
+                    corsBuilder
+                        .WithOrigins("http://localhost:3000", "http://localhost:4200", "http://127.0.0.1:3000", "http://127.0.0.1:4200")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
 
@@ -98,8 +105,10 @@ namespace PL
             // Add Services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
             builder.Services.AddScoped<IJwtTokenService>(provider =>
-                new JwtTokenService(secretKey, issuer, audience, expirationMinutes));
+                new JwtTokenService(secretKey, issuer, audience, expirationMinutes, provider.GetRequiredService<UserManager<User>>()));
 
             // Add Swagger/OpenAPI
             builder.Services.AddEndpointsApiExplorer();
@@ -108,32 +117,74 @@ namespace PL
             // Add Controllers
             builder.Services.AddControllers();
 
-           
+            // Add Hosted Services
+            builder.Services.AddHostedService<PL.Services.SubscriptionExpirationHostedService>();
 
             var app = builder.Build();
-            // Initialize Database
+            
+            // Initialize Database with retry logic
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                try
-                {
-                    var context = services.GetRequiredService<AppDbContext>();
-                    var userManager = services.GetRequiredService<UserManager<User>>();
-                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                var maxRetries = 3;
+                var retryCount = 0;
+                bool initialized = false;
 
-                    DbInitializer.InitializeAsync(context, userManager, roleManager).Wait();
-                }
-                catch (Exception ex)
+                while (retryCount < maxRetries && !initialized)
                 {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred during database initialization");
+                    try
+                    {
+                        retryCount++;
+                        logger.LogInformation($"Database initialization attempt {retryCount}/{maxRetries}...");
+                        
+                        var context = services.GetRequiredService<AppDbContext>();
+                        
+                        // Test connection first
+                        if (context.Database.CanConnect())
+                        {
+                            logger.LogInformation("? Database connection successful");
+                            
+                            var userManager = services.GetRequiredService<UserManager<User>>();
+                            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+                            logger.LogInformation("Starting database initialization...");
+                            DbInitializer.InitializeAsync(context, userManager, roleManager).Wait();
+                            logger.LogInformation("? Database initialization completed successfully.");
+                            initialized = true;
+                        }
+                        else
+                        {
+                            logger.LogWarning($"Cannot connect to database. Retry {retryCount}/{maxRetries}...");
+                            if (retryCount < maxRetries)
+                                Task.Delay(2000).Wait(); // Wait 2 seconds before retry
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, $"Attempt {retryCount}: Database initialization failed.");
+                        logger.LogError($"Connection Error Details: {ex.InnerException?.Message}");
+                        
+                        if (retryCount < maxRetries)
+                        {
+                            logger.LogInformation($"Retrying in 3 seconds...");
+                            Task.Delay(3000).Wait();
+                        }
+                        else
+                        {
+                            logger.LogCritical("? Failed to initialize database after {MaxRetries} attempts", maxRetries);
+                            logger.LogCritical("Please ensure SQL Server is running and accessible.");
+                            throw;
+                        }
+                    }
                 }
             }
+            
             // Configure the HTTP request pipeline
             if (app.Environment.IsDevelopment())
             {
-                //app.UseDeveloperExceptionPage();
                 app.UseSwagger();
+
                 app.UseSwaggerUI();
             }
 

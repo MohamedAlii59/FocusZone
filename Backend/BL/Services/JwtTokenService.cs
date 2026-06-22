@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using DAL.Entities;
 
@@ -10,7 +12,7 @@ namespace BL.Services
 {
     public interface IJwtTokenService
     {
-        string GenerateToken(User user);
+        Task<string> GenerateTokenAsync(User user, int? expirationMinutes = null);
     }
 
     public class JwtTokenService : IJwtTokenService
@@ -18,17 +20,19 @@ namespace BL.Services
         private readonly string _secretKey;
         private readonly string _issuer;
         private readonly string _audience;
-        private readonly int _expirationMinutes;
+        private readonly int _defaultExpirationMinutes;
+        private readonly UserManager<User> _userManager;
 
-        public JwtTokenService(string secretKey, string issuer, string audience, int expirationMinutes)
+        public JwtTokenService(string secretKey, string issuer, string audience, int defaultExpirationMinutes, UserManager<User> userManager = null)
         {
             _secretKey = secretKey;
             _issuer = issuer;
             _audience = audience;
-            _expirationMinutes = expirationMinutes;
+            _defaultExpirationMinutes = defaultExpirationMinutes;
+            _userManager = userManager;
         }
 
-        public string GenerateToken(User user)
+        public async Task<string> GenerateTokenAsync(User user, int? expirationMinutes = null)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -39,14 +43,28 @@ namespace BL.Services
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
                 new Claim(ClaimTypes.Name, user.UserName ?? ""),
                 new Claim("FirstName", user.FirstName ?? ""),
-                new Claim("LastName", user.LastName ?? "")
+                new Claim("LastName", user.LastName ?? ""),
+                new Claim("SessionMinutes", user.SessionMinutes.ToString())
             };
+
+            // Add roles to claims
+            if (_userManager != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
+            // Use provided expiration minutes or default
+            var minutesToExpire = expirationMinutes ?? _defaultExpirationMinutes;
 
             var token = new JwtSecurityToken(
                 issuer: _issuer,
                 audience: _audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_expirationMinutes),
+                expires: DateTime.UtcNow.AddMinutes(minutesToExpire),
                 signingCredentials: credentials
             );
 

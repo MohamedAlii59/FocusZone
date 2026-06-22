@@ -19,12 +19,17 @@ namespace BL.DTOs
         public string CityName { get; set; }
         public string PostalCode { get; set; }
         public string InterestsToLearn { get; set; }
-        public string CreatorUserId { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifierUserId { get; set; }
         public DateTime? ModifiedOn { get; set; }
         public bool IsDeleted { get; set; }
         public string DeleterUserId { get; set; }
         public DateTime? DeletedOn { get; set; }
+        
+        // Subscription and Payment Fields
+        public DateTime? SubscriptionEndDate { get; set; }
+        public int SessionMinutes { get; set; }
+        public bool IsPaidUser { get; set; }
+        public string[] Roles { get; set; }
     }
 }

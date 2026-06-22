@@ -12,7 +12,8 @@ namespace BL.Mapper
             CreateMap<User, UserResponseDto>()
                 .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null))
                 .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.Governorate != null ? src.Governorate.Name : null))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null));
+                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // Roles will be set manually in service
 
             // UserRegisterDto to User mapping
             CreateMap<UserRegisterDto, User>()
@@ -26,6 +27,15 @@ namespace BL.Mapper
             CreateMap<Country, Country>().ReverseMap();
             CreateMap<Governorate, Governorate>().ReverseMap();
             CreateMap<City, City>().ReverseMap();
+
+            // SubscriptionPlan mapping
+            CreateMap<SubscriptionPlan, SubscriptionPlanDto>()
+                .ForMember(dest => dest.PlanType, opt => opt.MapFrom(src => src.PlanType.ToString()));
+
+            // Subscription mapping
+            CreateMap<Subscription, SubscriptionDto>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }
+

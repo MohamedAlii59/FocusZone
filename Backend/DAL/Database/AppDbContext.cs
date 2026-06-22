@@ -15,6 +15,9 @@ namespace DAL.Database
         public DbSet<Governorate> Governorates { get; set; }
         public DbSet<City> Cities { get; set; }
         public DbSet<UserInterest> UserInterests { get; set; }
+        public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +68,42 @@ namespace DAL.Database
                 .WithMany(u => u.UserInterests)
                 .HasForeignKey(ui => ui.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Subscription Configuration
+            modelBuilder.Entity<Subscription>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Subscriptions)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subscription>()
+                .HasOne(s => s.SubscriptionPlan)
+                .WithMany(sp => sp.Subscriptions)
+                .HasForeignKey(s => s.SubscriptionPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Payment Configuration
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.SubscriptionPlan)
+                .WithMany()
+                .HasForeignKey(p => p.SubscriptionPlanId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasPrecision(18, 2);
+
+            // SubscriptionPlan Configuration
+            modelBuilder.Entity<SubscriptionPlan>()
+                .Property(sp => sp.Price)
+                .HasPrecision(18, 2);
 
             // Global Query Filter for soft delete
             modelBuilder.Entity<User>()

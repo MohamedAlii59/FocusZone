@@ -28,6 +28,12 @@ namespace DAL.Entities
         // Interests
         public string InterestsToLearn { get; set; }
 
+        // Subscription and Payment Fields
+        public DateTime? SubscriptionEndDate { get; set; }
+        public int SessionMinutes { get; set; } = 300; // Free minutes for new users
+        public bool IsPaidUser { get; set; } = false;
+        public DateTime? LastMinutesResetDate { get; set; }
+
         // Audit Fields
         public string? CreatorUserId { get; set; }
         public DateTime? CreatedOn { get; set; }
@@ -39,5 +45,7 @@ namespace DAL.Entities
 
         // Navigation Properties
         public virtual ICollection<UserInterest> UserInterests { get; set; } = new List<UserInterest>();
+        public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

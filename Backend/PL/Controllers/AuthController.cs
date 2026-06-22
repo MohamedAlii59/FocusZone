@@ -51,7 +51,7 @@ namespace PL.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                var token = _jwtTokenService.GenerateToken(user);
+                var token = await _jwtTokenService.GenerateTokenAsync(user);
                 return Ok(new { message = "User registered successfully", userId = user.Id, token = token });
             }
 
@@ -74,8 +74,10 @@ namespace PL.Controllers
             var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, false);
             if (result.Succeeded)
             {
-                var token = _jwtTokenService.GenerateToken(user);
-                return Ok(new { message = "Login successful", userId = user.Id, email = user.Email, token = token });
+                // If RememberMe is checked, token expires in 7 days, otherwise use default (60 minutes)
+                int? tokenExpirationMinutes = model.RememberMe ? (int?)(7 * 24 * 60) : null; // 7 days in minutes
+                var token = await _jwtTokenService.GenerateTokenAsync(user, tokenExpirationMinutes);
+                return Ok(new { message = "Login successful", userId = user.Id, email = user.Email, token = token, rememberMe = model.RememberMe });
             }
 
             return Unauthorized(new { message = "Invalid email or password" });
@@ -175,8 +177,7 @@ namespace PL.Controllers
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             // Generate and return JWT token
-           
-            var token = _jwtTokenService.GenerateToken(user);
+            var token = await _jwtTokenService.GenerateTokenAsync(user);
 
             // توجيه المستخدم للفرونت إند مرة أخرى ومعه التوكن والإيميل
             var frontendUrl = $"{_configuration["AppSettings:FrontendUrl"]}/external-login-callback?token={token}&email={Uri.EscapeDataString(user.Email)}";

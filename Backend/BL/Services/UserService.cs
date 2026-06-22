@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -38,8 +39,17 @@ namespace BL.Services
             var user = _mapper.Map<User>(dto);
             user.CreatorUserId = creatorUserId;
             user.CreatedOn = DateTime.UtcNow;
+            user.SessionMinutes = 300; // Give 300 free minutes
+            user.LastMinutesResetDate = DateTime.UtcNow;
 
             var result = await _userManager.CreateAsync(user, dto.Password);
+            
+            if (result.Succeeded)
+            {
+                // Assign "User" role to new registered users
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
             return result;
         }
 
@@ -54,7 +64,11 @@ namespace BL.Services
             if (user == null)
                 return null;
 
-            return _mapper.Map<UserResponseDto>(user);
+            var userDto = _mapper.Map<UserResponseDto>(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            userDto.Roles = roles.ToArray();
+
+            return userDto;
         }
 
         public async Task<IdentityResult> UpdateUserAsync(string userId, UserResponseDto dto)
@@ -100,10 +114,15 @@ namespace BL.Services
                 FirstName = firstName,
                 LastName = lastName,
                 CreatedOn = DateTime.UtcNow,
-                CreatorUserId = "ExternalLogin"
+                CreatorUserId = "ExternalLogin",
+                SessionMinutes = 300, // Give 300 free minutes
+                LastMinutesResetDate = DateTime.UtcNow
             };
 
             await _userManager.CreateAsync(user);
+            // Assign "User" role to external login users
+            await _userManager.AddToRoleAsync(user, "User");
+            
             return user;
         }
 
