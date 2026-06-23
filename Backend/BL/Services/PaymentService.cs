@@ -17,7 +17,7 @@ namespace BL.Services
         Task<CreatePaymentIntentResponseDto> CreateMinutePurchaseCheckoutSessionAsync(string userId, int minutes);
         Task<bool> HandlePaymentSuccessAsync(string sessionId, string authenticatedUserId);
         Task<SubscriptionPlan> GetSubscriptionPlanAsync(int planId);
-        Task<bool> ProcessSubscriptionAsync(string userId, int planId);
+        Task<bool> ProcessSubscriptionAsync(string userId, int planId, string sessionId);
         Task<bool> ProcessMinutesPurchaseAsync(string userId, int minutes, decimal amount);
     }
 
@@ -199,6 +199,10 @@ namespace BL.Services
                 if (session == null || session.PaymentStatus != "paid")
                     return false;
 
+
+
+              
+
                 var payment = await _context.Payments
                     .FirstOrDefaultAsync(p => p.StripePaymentIntentId == sessionId);
 
@@ -218,7 +222,7 @@ namespace BL.Services
 
                 if (payment.PaymentType == PaymentType.Subscription)
                 {
-                    await ProcessSubscriptionAsync(payment.UserId, payment.SubscriptionPlanId.Value);
+                    await ProcessSubscriptionAsync(payment.UserId, payment.SubscriptionPlanId.Value, sessionId);
                 }
                 else if (payment.PaymentType == PaymentType.MinutesPurchase)
                 {
@@ -239,7 +243,7 @@ namespace BL.Services
             return await _context.SubscriptionPlans.FirstOrDefaultAsync(p => p.Id == planId && p.IsActive);
         }
 
-        public async Task<bool> ProcessSubscriptionAsync(string userId, int planId)
+        public async Task<bool> ProcessSubscriptionAsync(string userId, int planId, string sessionId)
         {
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
@@ -258,7 +262,7 @@ namespace BL.Services
                 StartDate = DateTime.UtcNow,
                 EndDate = endDate,
                 Status = SubscriptionStatus.Active,
-                StripeSubscriptionId = null,
+                StripeSubscriptionId =sessionId,
                 IsActive = true,
                 CreatedOn = DateTime.UtcNow
             };
