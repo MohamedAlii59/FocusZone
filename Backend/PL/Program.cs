@@ -117,6 +117,9 @@ namespace PL
             // Add Controllers
             builder.Services.AddControllers();
 
+            // Add HttpClient factory for typed/centralized HttpClient usage
+            builder.Services.AddHttpClient();
+
             // Add Hosted Services
             builder.Services.AddHostedService<PL.Services.SubscriptionExpirationHostedService>();
 
