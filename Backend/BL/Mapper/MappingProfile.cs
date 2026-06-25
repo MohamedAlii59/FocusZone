@@ -1,6 +1,12 @@
 using AutoMapper;
 using DAL.Entities;
 using BL.DTOs;
+using BL.DTOs.Education;
+using BL.DTOs.Experience;
+using BL.DTOs.Certificate;
+using BL.DTOs.Project;
+using BL.DTOs.UserTopicMastery;
+using BL.DTOs.ExamSession;
 
 namespace BL.Mapper
 {
@@ -13,7 +19,31 @@ namespace BL.Mapper
                 .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null))
                 .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.Governorate != null ? src.Governorate.Name : null))
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
-                .ForMember(dest => dest.Roles, opt => opt.Ignore()); // Roles will be set manually in service
+                .ForMember(dest => dest.Roles, opt => opt.Ignore()) // Roles will be set manually in service
+                .ForMember(dest => dest.Certificates, opt => opt.MapFrom(src => src.Certificates))
+                .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Educations))
+                .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Experiences))
+                .ForMember(dest => dest.Projects, opt => opt.MapFrom(src => src.Projects))
+                .ForMember(dest => dest.UserTopicMasteries, opt => opt.MapFrom(src => src.TopicMasteries));
+
+            // Map child collections
+            CreateMap<Certificate, CertificateDto>();
+            CreateMap<Education, EducationDto>();
+            CreateMap<Experience, ExperienceDto>();
+            CreateMap<Project, ProjectDto>();
+            CreateMap<UserTopicMastery, UserTopicMasteryDto>();
+
+            // ExamSession mappings
+            CreateMap<ExamSession, ExamSessionDto>()
+                .ForMember(dest => dest.StudySession, opt => opt.MapFrom(src => src.StudySession));
+            CreateMap<StudySession, StudySessionDto>();
+            CreateMap<SessionAnswer, SessionAnswerDto>().ReverseMap();
+            CreateMap<AnswerChoice, AnswerChoiceDto>().ReverseMap();
+
+            CreateMap<Resource, ResourceBriefDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             // UserRegisterDto to User mapping
             CreateMap<UserRegisterDto, User>()
@@ -38,4 +68,3 @@ namespace BL.Mapper
         }
     }
 }
-

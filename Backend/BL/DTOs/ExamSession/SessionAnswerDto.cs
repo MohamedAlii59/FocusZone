@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 
-namespace DAL.Entities
+namespace BL.DTOs.ExamSession
 {
-    public class SessionAnswer
+    public class SessionAnswerDto
     {
         public int AnswerId { get; set; }
         public int ExamId { get; set; }
@@ -14,7 +13,6 @@ namespace DAL.Entities
         public bool? IsCorrect { get; set; }
         public string Explanation { get; set; }
 
-        public virtual ExamSession ExamSession { get; set; }
-        public virtual ICollection<AnswerChoice> AnswerChoices { get; set; } = new List<AnswerChoice>();
+        public ICollection<AnswerChoiceDto> AnswerChoices { get; set; } = new List<AnswerChoiceDto>();
     }
 }

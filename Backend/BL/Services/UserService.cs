@@ -48,6 +48,28 @@ namespace BL.Services
             {
                 // Assign "User" role to new registered users
                 await _userManager.AddToRoleAsync(user, "User");
+
+                // Store goals if provided
+                if (dto.Goals != null && dto.Goals.Length > 0)
+                {
+                    foreach (var title in dto.Goals)
+                    {
+                        if (string.IsNullOrWhiteSpace(title))
+                            continue;
+
+                        var goal = new Goal
+                        {
+                            UserId = user.Id,
+                            Title = title.Trim(),
+                            Category = "registration",
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Goals.Add(goal);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
             }
 
             return result;
@@ -59,6 +81,7 @@ namespace BL.Services
                 .Include(u => u.Country)
                 .Include(u => u.Governorate)
                 .Include(u => u.City)
+                .Include(u => u.Goals)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
@@ -149,3 +172,4 @@ namespace BL.Services
         }
     }
 }
+

@@ -1,4 +1,10 @@
 using System;
+using System.Collections.Generic;
+using BL.DTOs.Certificate;
+using BL.DTOs.Education;
+using BL.DTOs.Experience;
+using BL.DTOs.Project;
+using BL.DTOs.UserTopicMastery;
 
 namespace BL.DTOs
 {
@@ -31,5 +37,11 @@ namespace BL.DTOs
         public int SessionMinutes { get; set; }
         public bool IsPaidUser { get; set; }
         public string[] Roles { get; set; }
+
+        public ICollection<CertificateDto> Certificates { get; set; } = new List<CertificateDto>();
+        public ICollection<EducationDto> Educations { get; set; } = new List<EducationDto>();
+        public ICollection<ExperienceDto> Experiences { get; set; } = new List<ExperienceDto>();
+        public ICollection<ProjectDto> Projects { get; set; } = new List<ProjectDto>();
+        public ICollection<UserTopicMasteryDto> UserTopicMasteries { get; set; } = new List<UserTopicMasteryDto>();
     }
 }

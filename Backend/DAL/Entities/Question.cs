@@ -15,3 +15,8 @@ namespace DAL.Entities
         public virtual StudySession StudySession { get; set; }
     }
 }
+
+
+
+
+

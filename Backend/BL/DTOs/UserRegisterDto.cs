@@ -31,7 +31,7 @@ namespace BL.DTOs
         public DateTime? BirthDate { get; set; }
 
         [Phone(ErrorMessage = "Invalid phone number")]
-        public string Mobile { get; set; }
+        public string? Mobile { get; set; }
 
         public int? CountryId { get; set; }
 
@@ -40,8 +40,11 @@ namespace BL.DTOs
         public int? CityId { get; set; }
 
         [StringLength(10, ErrorMessage = "Postal code must be at most 10 characters")]
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
 
-        public string InterestsToLearn { get; set; }
+        public string? InterestsToLearn { get; set; }
+
+        // Goals: array of titles provided during registration (optional)
+        public string[]? Goals { get; set; }
     }
 }

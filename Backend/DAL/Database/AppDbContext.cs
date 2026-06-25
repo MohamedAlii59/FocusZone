@@ -14,7 +14,6 @@ namespace DAL.Database
         public DbSet<Country> Countries { get; set; }
         public DbSet<Governorate> Governorates { get; set; }
         public DbSet<City> Cities { get; set; }
-        public DbSet<UserInterest> UserInterests { get; set; }
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -43,10 +42,10 @@ namespace DAL.Database
 
             // User Configuration
             modelBuilder.Entity<User>()
-     .HasOne(u => u.Country)
-     .WithMany(c => c.Users)
-     .HasForeignKey(u => u.CountryId)
-     .OnDelete(DeleteBehavior.Restrict); 
+                .HasOne(u => u.Country)
+                .WithMany(c => c.Users)
+                .HasForeignKey(u => u.CountryId)
+                .OnDelete(DeleteBehavior.Restrict); 
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Governorate)
@@ -60,12 +59,6 @@ namespace DAL.Database
                 .HasForeignKey(u => u.CityId)
                 .OnDelete(DeleteBehavior.Restrict); 
 
-            modelBuilder.Entity<User>()
-                .HasMany(u => u.UserInterests)
-                .WithOne(ui => ui.User)
-                .HasForeignKey(ui => ui.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // Country Configuration
             modelBuilder.Entity<Country>()
                 .HasMany(c => c.Governorates)
@@ -78,13 +71,6 @@ namespace DAL.Database
                 .HasMany(g => g.Cities)
                 .WithOne(c => c.Governorate)
                 .HasForeignKey(c => c.GovernorateId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // User Interest Configuration
-            modelBuilder.Entity<UserInterest>()
-                .HasOne(ui => ui.User)
-                .WithMany(u => u.UserInterests)
-                .HasForeignKey(ui => ui.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Subscription Configuration
@@ -133,7 +119,6 @@ namespace DAL.Database
             modelBuilder.Entity<StudySession>().HasQueryFilter(ss => !ss.User.IsDeleted);
             modelBuilder.Entity<Subscription>().HasQueryFilter(s => !s.User.IsDeleted);
             modelBuilder.Entity<UserDomain>().HasQueryFilter(ud => !ud.User.IsDeleted);
-            modelBuilder.Entity<UserInterest>().HasQueryFilter(ui => !ui.User.IsDeleted);
             modelBuilder.Entity<UserTopicMastery>().HasQueryFilter(utm => !utm.User.IsDeleted);
             modelBuilder.Entity<Evidence>().HasQueryFilter(e => !e.StudySession.User.IsDeleted);
             modelBuilder.Entity<Project>().HasQueryFilter(es => !es.User.IsDeleted);
@@ -451,7 +436,7 @@ namespace DAL.Database
 
             // ExamSession Configuration
             modelBuilder.Entity<ExamSession>()
-                .HasKey(es => es.SessionId);
+                .HasKey(es => es.ExamId);
 
             modelBuilder.Entity<ExamSession>()
                 .Property(es => es.Score)
@@ -460,6 +445,18 @@ namespace DAL.Database
             modelBuilder.Entity<ExamSession>()
                 .ToTable(tb => tb.HasCheckConstraint("CHK_Score_Range", "Score >= 0.00 AND Score <= 1.00"));
 
+            // Map SessionId CLR property to the column created by the migration
+            modelBuilder.Entity<ExamSession>()
+                .Property(es => es.SessionId)
+                .HasColumnName("StudySessionSessionId");
+
+            // Configure FK relationship to StudySession
+            modelBuilder.Entity<ExamSession>()
+                .HasOne(es => es.StudySession)
+                .WithMany()
+                .HasForeignKey(es => es.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // SessionAnswer Configuration
             modelBuilder.Entity<SessionAnswer>()
                 .HasKey(sa => sa.AnswerId);
@@ -467,7 +464,7 @@ namespace DAL.Database
             modelBuilder.Entity<SessionAnswer>()
                 .HasOne(sa => sa.ExamSession)
                 .WithMany(es => es.SessionAnswers)
-                .HasForeignKey(sa => sa.SessionId)
+                .HasForeignKey(sa => sa.ExamId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<SessionAnswer>()

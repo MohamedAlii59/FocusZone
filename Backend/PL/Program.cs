@@ -50,7 +50,8 @@ namespace PL
             var secretKey = jwtSettings["SecretKey"];
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
-            var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
+            // Default token expiration: 1 day (1440 minutes) if not configured
+            var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "1440");
 
             var key = Encoding.ASCII.GetBytes(secretKey ?? throw new InvalidOperationException("JWT SecretKey is missing"));
 

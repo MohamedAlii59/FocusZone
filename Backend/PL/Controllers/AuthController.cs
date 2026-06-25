@@ -51,7 +51,8 @@ namespace PL.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                var token = await _jwtTokenService.GenerateTokenAsync(user);
+                // Token expires after 1 day for newly registered users
+                var token = await _jwtTokenService.GenerateTokenAsync(user, 24 * 60);
                 return Ok(new { message = "User registered successfully", userId = user.Id, token = token });
             }
 
@@ -74,8 +75,8 @@ namespace PL.Controllers
             var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, false, false);
             if (result.Succeeded)
             {
-                // If RememberMe is checked, token expires in 7 days, otherwise use default (60 minutes)
-                int? tokenExpirationMinutes = model.RememberMe ? (int?)(7 * 24 * 60) : null; // 7 days in minutes
+                // Token expiry: 1 day by default, 7 days when RememberMe is true
+                int? tokenExpirationMinutes = model.RememberMe ? (int?)(7 * 24 * 60) : (int?)(24 * 60);
                 var token = await _jwtTokenService.GenerateTokenAsync(user, tokenExpirationMinutes);
                 return Ok(new { message = "Login successful", userId = user.Id, email = user.Email, token = token, rememberMe = model.RememberMe });
             }
@@ -109,7 +110,7 @@ namespace PL.Controllers
             var targetScheme = schemes.FirstOrDefault(s =>
                 s.Name.Equals(provider, StringComparison.OrdinalIgnoreCase));
 
-            // 3. إذا لم يجد النظام (مثلاً أرسل provider غير موجود كـ facebook وهو غير مسجل)
+            // 3. إذا لم finds النظام (مثلاً أرسل provider غير موجود كـ facebook وهو غير مسجل)
             if (targetScheme == null)
             {
                 return BadRequest(new { error = $"Provider '{provider}' is not supported." });
@@ -177,7 +178,8 @@ namespace PL.Controllers
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             // Generate and return JWT token
-            var token = await _jwtTokenService.GenerateTokenAsync(user);
+            // External login tokens expire after 1 day by default
+            var token = await _jwtTokenService.GenerateTokenAsync(user, 24 * 60);
 
             // توجيه المستخدم للفرونت إند مرة أخرى ومعه التوكن والإيميل
             var frontendUrl = $"{_configuration["AppSettings:FrontendUrl"]}/external-login-callback?token={token}&email={Uri.EscapeDataString(user.Email)}";
