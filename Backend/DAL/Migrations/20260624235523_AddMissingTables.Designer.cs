@@ -4,6 +4,7 @@ using DAL.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624235523_AddMissingTables")]
+    partial class AddMissingTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,9 +60,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CertificateId"));
 
                     b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("CredentialId")
                         .IsRequired()
@@ -147,9 +148,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("EducationId"));
 
                     b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Degree")
                         .IsRequired()
@@ -202,9 +201,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("EvidenceId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Score")
                         .HasPrecision(3, 2)
@@ -273,9 +270,7 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool?>("Current")
                         .ValueGeneratedOnAdd()
@@ -329,18 +324,14 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Priority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -480,9 +471,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("QuestionId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
@@ -513,19 +502,13 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ResourceId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Depth")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("Difficulty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("EstimatedMinutes")
                         .HasColumnType("int");
@@ -559,16 +542,12 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("CoverageWeight")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<decimal>("DifficultyContribution")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("ResourceId", "TopicId");
 
@@ -749,12 +728,11 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TopicId"));
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Difficulty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(5, 2)
@@ -798,10 +776,8 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Weight")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("RelationshipId");
 
@@ -1007,32 +983,22 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Confidence")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<int>("EvidenceCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Interest")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.50m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<DateTime>("LastUpdated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Mastery")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("UserId", "TopicId");
 
