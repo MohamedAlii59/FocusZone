@@ -1,13 +1,16 @@
-
+using BL.Mapper;
+using BL.Services;
+using DAL.Database;
+using DAL.Entities;
+using DAL.Extensions; // Essential for AddMergedDatabase
+using DAL.Repositories;
+using DAL.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DAL.Entities;
-using DAL.Database;
-using BL.Services;
-using BL.Mapper;
+
 namespace PL
 {
     public class Program
@@ -16,20 +19,19 @@ namespace PL
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Configuration
+            // 1. Load and Verify Connection String
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            
+
             if (string.IsNullOrWhiteSpace(connectionString))
             {
                 throw new InvalidOperationException("DefaultConnection string is not configured in appsettings.json");
             }
 
-            // Add DbContext
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            // 2. Register Database via your DAL Extension Method
+            Console.WriteLine(connectionString);
+            builder.Services.AddMergedDatabase(connectionString);
 
-
-            // Add Identity
+            // 3. Add Identity
             builder.Services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -43,16 +45,16 @@ namespace PL
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-            // JWT Configuration
+            // 4. JWT Configuration
             var jwtSettings = builder.Configuration.GetSection("Authentication:Jwt");
             var secretKey = jwtSettings["SecretKey"];
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
             var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "60");
 
-            var key = Encoding.ASCII.GetBytes(secretKey);
+            var key = Encoding.ASCII.GetBytes(secretKey ?? throw new InvalidOperationException("JWT SecretKey is missing"));
 
-            // Add JWT Bearer Authentication
+            // 5. Add Authentication (JWT + Socials)
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -86,7 +88,7 @@ namespace PL
                 options.Scope.Add("user:email");
             });
 
-            // Add CORS
+            // 6. Add CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", corsBuilder =>
@@ -99,10 +101,10 @@ namespace PL
                 });
             });
 
-            // Add AutoMapper
-            builder.Services.AddAutoMapper(m=>m.AddProfile(new MappingProfile()));
+            // 7. Add AutoMapper
+            builder.Services.AddAutoMapper(m => m.AddProfile(new MappingProfile()));
 
-            // Add Services
+            // 8. Add Business Logic Services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -110,98 +112,52 @@ namespace PL
             builder.Services.AddScoped<IJwtTokenService>(provider =>
                 new JwtTokenService(secretKey, issuer, audience, expirationMinutes, provider.GetRequiredService<UserManager<User>>()));
 
-            // Add Swagger/OpenAPI
+            // 9. MVC & Tooling
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            // Add Controllers
             builder.Services.AddControllers();
-
-            // Add HttpClient factory for typed/centralized HttpClient usage
             builder.Services.AddHttpClient();
-
-            // Add Hosted Services
             builder.Services.AddHostedService<PL.Services.SubscriptionExpirationHostedService>();
-
+            builder.Services.AddScoped<DataMigrationUtility>();
+            builder.Services.AddScoped<GraduationProjectRepository>();
             var app = builder.Build();
-            
-            // Initialize Database with retry logic
-            using (var scope = app.Services.CreateScope())
+
+            // 10. Automated Migration & Seeding Lifecycle Execution
+            try
             {
-                var services = scope.ServiceProvider;
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                var maxRetries = 3;
-                var retryCount = 0;
-                bool initialized = false;
+                app.Services.EnsureDatabaseCreatedAndMigrated();
 
-                while (retryCount < maxRetries && !initialized)
+                using (var scope = app.Services.CreateScope())
                 {
-                    try
-                    {
-                        retryCount++;
-                        logger.LogInformation($"Database initialization attempt {retryCount}/{maxRetries}...");
-                        
-                        var context = services.GetRequiredService<AppDbContext>();
-                        
-                        // Test connection first
-                        if (context.Database.CanConnect())
-                        {
-                            logger.LogInformation("? Database connection successful");
-                            
-                            var userManager = services.GetRequiredService<UserManager<User>>();
-                            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    var services = scope.ServiceProvider;
+                    var context = services.GetRequiredService<AppDbContext>();
+                    var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-                            logger.LogInformation("Starting database initialization...");
-                            DbInitializer.InitializeAsync(context, userManager, roleManager).Wait();
-                            logger.LogInformation("? Database initialization completed successfully.");
-                            initialized = true;
-                        }
-                        else
-                        {
-                            logger.LogWarning($"Cannot connect to database. Retry {retryCount}/{maxRetries}...");
-                            if (retryCount < maxRetries)
-                                Task.Delay(2000).Wait(); // Wait 2 seconds before retry
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, $"Attempt {retryCount}: Database initialization failed.");
-                        logger.LogError($"Connection Error Details: {ex.InnerException?.Message}");
-                        
-                        if (retryCount < maxRetries)
-                        {
-                            logger.LogInformation($"Retrying in 3 seconds...");
-                            Task.Delay(3000).Wait();
-                        }
-                        else
-                        {
-                            logger.LogCritical("? Failed to initialize database after {MaxRetries} attempts", maxRetries);
-                            logger.LogCritical("Please ensure SQL Server is running and accessible.");
-                            throw;
-                        }
-                    }
+
+                    await DbInitializer.InitializeAsync(context, userManager, roleManager);
                 }
+                Console.WriteLine("✓ Database initialized and custom seeding completed.");
             }
-            
-            // Configure the HTTP request pipeline
+            catch (Exception ex)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<Program>>();
+                logger.LogCritical(ex, "An unhandled error occurred during pipeline database migration updates.");
+            }
+
+            // 11. Pipeline Middlewares
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-
                 app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
-
             app.UseCors("AllowAll");
-
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
-           
-
             app.Run();
         }
     }

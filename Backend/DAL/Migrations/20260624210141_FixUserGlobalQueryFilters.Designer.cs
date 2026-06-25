@@ -4,6 +4,7 @@ using DAL.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260624210141_FixUserGlobalQueryFilters")]
+    partial class FixUserGlobalQueryFilters
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,79 +24,6 @@ namespace DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("DAL.Entities.AnswerChoice", b =>
-                {
-                    b.Property<int>("ChoiceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChoiceId"));
-
-                    b.Property<int>("AnswerId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ChoiceKey")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(1)");
-
-                    b.Property<string>("ChoiceValue")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ChoiceId");
-
-                    b.HasIndex("AnswerId");
-
-                    b.ToTable("AnswerChoices");
-                });
-
-            modelBuilder.Entity("DAL.Entities.Certificate", b =>
-                {
-                    b.Property<long>("CertificateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("CertificateId"));
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
-
-                    b.Property<string>("CredentialId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("IssueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Issuer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("CertificateId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Certificates");
-                });
 
             modelBuilder.Entity("DAL.Entities.City", b =>
                 {
@@ -138,61 +68,6 @@ namespace DAL.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("DAL.Entities.Education", b =>
-                {
-                    b.Property<long>("EducationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("EducationId"));
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
-
-                    b.Property<string>("Degree")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Field")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Institution")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("EducationId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Educations");
-                });
-
             modelBuilder.Entity("DAL.Entities.Evidence", b =>
                 {
                     b.Property<long>("EvidenceId")
@@ -202,9 +77,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("EvidenceId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Score")
                         .HasPrecision(3, 2)
@@ -234,88 +107,6 @@ namespace DAL.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DAL.Entities.ExamSession", b =>
-                {
-                    b.Property<int>("SessionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"));
-
-                    b.Property<bool?>("Passed")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("Score")
-                        .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)");
-
-                    b.Property<int?>("TotalQuestions")
-                        .HasColumnType("int");
-
-                    b.HasKey("SessionId");
-
-                    b.ToTable("ExamSessions", t =>
-                        {
-                            t.HasCheckConstraint("CHK_Score_Range", "Score >= 0.00 AND Score <= 1.00");
-                        });
-                });
-
-            modelBuilder.Entity("DAL.Entities.Experience", b =>
-                {
-                    b.Property<long>("ExperienceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ExperienceId"));
-
-                    b.Property<string>("Company")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetimeoffset")
-                        .HasDefaultValueSql("sysutcdatetime()");
-
-                    b.Property<bool?>("Current")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("SortOrder")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ExperienceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Experiences");
-                });
-
             modelBuilder.Entity("DAL.Entities.Goal", b =>
                 {
                     b.Property<long>("GoalId")
@@ -329,18 +120,14 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Priority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -426,51 +213,6 @@ namespace DAL.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("DAL.Entities.Project", b =>
-                {
-                    b.Property<long>("ProjectId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ProjectId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Technologies")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("ProjectId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Projects");
-                });
-
             modelBuilder.Entity("DAL.Entities.Question", b =>
                 {
                     b.Property<long>("QuestionId")
@@ -480,9 +222,7 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("QuestionId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
@@ -513,19 +253,13 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ResourceId"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Depth")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("Difficulty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<int>("EstimatedMinutes")
                         .HasColumnType("int");
@@ -559,16 +293,12 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("CoverageWeight")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<decimal>("DifficultyContribution")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("ResourceId", "TopicId");
 
@@ -580,47 +310,6 @@ namespace DAL.Migrations
 
                             t.HasCheckConstraint("CK_RTC_DifficultyContribution", "DifficultyContribution >= 0.00 AND DifficultyContribution <= 1.00");
                         });
-                });
-
-            modelBuilder.Entity("DAL.Entities.SessionAnswer", b =>
-                {
-                    b.Property<int>("AnswerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnswerId"));
-
-                    b.Property<string>("CorrectAnswer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Explanation")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("IsCorrect")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Question")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SessionId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserAnswer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AnswerId");
-
-                    b.HasIndex("SessionId");
-
-                    b.ToTable("SessionAnswers");
                 });
 
             modelBuilder.Entity("DAL.Entities.StudySession", b =>
@@ -749,12 +438,11 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TopicId"));
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Difficulty")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<decimal>("EstimatedHours")
                         .HasPrecision(5, 2)
@@ -798,10 +486,8 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Weight")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(1.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("RelationshipId");
 
@@ -1007,32 +693,22 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Confidence")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<int>("EvidenceCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Interest")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.50m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.Property<DateTime>("LastUpdated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("getutcdate()");
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Mastery")
-                        .ValueGeneratedOnAdd()
                         .HasPrecision(3, 2)
-                        .HasColumnType("decimal(3,2)")
-                        .HasDefaultValue(0.00m);
+                        .HasColumnType("decimal(3,2)");
 
                     b.HasKey("UserId", "TopicId");
 
@@ -1181,28 +857,6 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DAL.Entities.AnswerChoice", b =>
-                {
-                    b.HasOne("DAL.Entities.SessionAnswer", "SessionAnswer")
-                        .WithMany("AnswerChoices")
-                        .HasForeignKey("AnswerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SessionAnswer");
-                });
-
-            modelBuilder.Entity("DAL.Entities.Certificate", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("Certificates")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Entities.City", b =>
                 {
                     b.HasOne("DAL.Entities.Governorate", "Governorate")
@@ -1212,17 +866,6 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Governorate");
-                });
-
-            modelBuilder.Entity("DAL.Entities.Education", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("Educations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DAL.Entities.Evidence", b =>
@@ -1242,17 +885,6 @@ namespace DAL.Migrations
                     b.Navigation("StudySession");
 
                     b.Navigation("Topic");
-                });
-
-            modelBuilder.Entity("DAL.Entities.Experience", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("Experiences")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("DAL.Entities.Goal", b =>
@@ -1295,17 +927,6 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DAL.Entities.Project", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("Projects")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Entities.Question", b =>
                 {
                     b.HasOne("DAL.Entities.StudySession", "StudySession")
@@ -1342,17 +963,6 @@ namespace DAL.Migrations
                     b.Navigation("Resource");
 
                     b.Navigation("Topic");
-                });
-
-            modelBuilder.Entity("DAL.Entities.SessionAnswer", b =>
-                {
-                    b.HasOne("DAL.Entities.ExamSession", "ExamSession")
-                        .WithMany("SessionAnswers")
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ExamSession");
                 });
 
             modelBuilder.Entity("DAL.Entities.StudySession", b =>
@@ -1542,11 +1152,6 @@ namespace DAL.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("DAL.Entities.ExamSession", b =>
-                {
-                    b.Navigation("SessionAnswers");
-                });
-
             modelBuilder.Entity("DAL.Entities.Governorate", b =>
                 {
                     b.Navigation("Cities");
@@ -1559,11 +1164,6 @@ namespace DAL.Migrations
                     b.Navigation("StudySessions");
 
                     b.Navigation("TopicCoverages");
-                });
-
-            modelBuilder.Entity("DAL.Entities.SessionAnswer", b =>
-                {
-                    b.Navigation("AnswerChoices");
                 });
 
             modelBuilder.Entity("DAL.Entities.StudySession", b =>
@@ -1595,17 +1195,9 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.User", b =>
                 {
-                    b.Navigation("Certificates");
-
-                    b.Navigation("Educations");
-
-                    b.Navigation("Experiences");
-
                     b.Navigation("Goals");
 
                     b.Navigation("Payments");
-
-                    b.Navigation("Projects");
 
                     b.Navigation("Questions");
 

@@ -47,5 +47,14 @@ namespace DAL.Entities
         public virtual ICollection<UserInterest> UserInterests { get; set; } = new List<UserInterest>();
         public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public virtual ICollection<StudySession> StudySessions { get; set; } = new List<StudySession>();
+        public virtual ICollection<UserTopicMastery> TopicMasteries { get; set; } = new List<UserTopicMastery>();
+        public virtual ICollection<Goal> Goals { get; set; } = new List<Goal>();
+        public virtual ICollection<UserDomain> UserDomains { get; set; } = new List<UserDomain>();
+        public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
+        public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
+        public virtual ICollection<Education> Educations { get; set; } = new List<Education>();
+        public virtual ICollection<Experience> Experiences { get; set; } = new List<Experience>();
+        public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
     }
 }
