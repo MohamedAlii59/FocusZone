@@ -10,8 +10,8 @@ namespace DAL.Entities
         public string Role { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string Location { get; set; }
-        public string Description { get; set; }
+        public string? Location { get; set; }
+        public string? Description { get; set; }
         public bool? Current { get; set; }
         public int? SortOrder { get; set; }
         public DateTimeOffset? CreatedAt { get; set; }

@@ -108,7 +108,6 @@ namespace BL.Services
             user.GovernorateId = dto.GovernorateId;
             user.CityId = dto.CityId;
             user.PostalCode = dto.PostalCode;
-            user.InterestsToLearn = dto.InterestsToLearn;
             user.ModifierUserId = userId;
             user.ModifiedOn = DateTime.UtcNow;
 

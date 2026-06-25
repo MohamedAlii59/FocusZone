@@ -25,9 +25,6 @@ namespace DAL.Entities
 
         public string PostalCode { get; set; }
 
-        // Interests
-        public string InterestsToLearn { get; set; }
-
         // Subscription and Payment Fields
         public DateTime? SubscriptionEndDate { get; set; }
         public int SessionMinutes { get; set; } = 300; // Free minutes for new users

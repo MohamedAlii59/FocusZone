@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DAL.Migrations.ExamSessionChanges
+namespace DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260625143638_RenameExamSessionKeyAndAddFK")]
-    partial class RenameExamSessionKeyAndAddFK
+    [Migration("20260625220630_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -253,17 +253,15 @@ namespace DAL.Migrations.ExamSessionChanges
                         .HasColumnType("decimal(3,2)");
 
                     b.Property<long>("SessionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("StudySessionSessionId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("StudySessionSessionId");
 
                     b.Property<int?>("TotalQuestions")
                         .HasColumnType("int");
 
                     b.HasKey("ExamId");
 
-                    b.HasIndex("StudySessionSessionId");
+                    b.HasIndex("SessionId");
 
                     b.ToTable("ExamSessions", t =>
                         {
@@ -336,7 +334,6 @@ namespace DAL.Migrations.ExamSessionChanges
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GoalId"));
 
                     b.Property<string>("Category")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -345,10 +342,9 @@ namespace DAL.Migrations.ExamSessionChanges
                         .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Priority")
+                    b.Property<int?>("Priority")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
@@ -876,7 +872,6 @@ namespace DAL.Migrations.ExamSessionChanges
                         .HasColumnType("int");
 
                     b.Property<string>("InterestsToLearn")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -984,29 +979,6 @@ namespace DAL.Migrations.ExamSessionChanges
                         {
                             t.HasCheckConstraint("CK_UserDomains_Score", "Score >= 0.00 AND Score <= 1.00");
                         });
-                });
-
-            modelBuilder.Entity("DAL.Entities.UserInterest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Interest")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserInterests");
                 });
 
             modelBuilder.Entity("DAL.Entities.UserTopicMastery", b =>
@@ -1259,7 +1231,7 @@ namespace DAL.Migrations.ExamSessionChanges
                 {
                     b.HasOne("DAL.Entities.StudySession", "StudySession")
                         .WithMany()
-                        .HasForeignKey("StudySessionSessionId")
+                        .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1476,17 +1448,6 @@ namespace DAL.Migrations.ExamSessionChanges
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DAL.Entities.UserInterest", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("UserInterests")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Entities.UserTopicMastery", b =>
                 {
                     b.HasOne("DAL.Entities.Topic", "Topic")
@@ -1638,8 +1599,6 @@ namespace DAL.Migrations.ExamSessionChanges
                     b.Navigation("TopicMasteries");
 
                     b.Navigation("UserDomains");
-
-                    b.Navigation("UserInterests");
                 });
 #pragma warning restore 612, 618
         }

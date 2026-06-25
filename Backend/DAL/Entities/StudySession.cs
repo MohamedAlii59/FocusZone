@@ -8,9 +8,9 @@ namespace DAL.Entities
         public long SessionId { get; set; }
         public string UserId { get; set; } // Foreign key to AspNetUsers
         public long? ResourceId { get; set; }
-        public DateTime StartedAt { get; set; }
+        public DateTime? StartedAt { get; set; }
         public DateTime? EndedAt { get; set; }
-        public string SessionSummary { get; set; }
+        public string? SessionSummary { get; set; }
 
         // Computed Property (in SQL: DATEDIFF(minute, StartedAt, EndedAt))
         public int? DurationMinutes
@@ -19,7 +19,7 @@ namespace DAL.Entities
             {
                 if (EndedAt.HasValue)
                 {
-                    return (int)(EndedAt.Value - StartedAt).TotalMinutes;
+                    return (int)(EndedAt.Value - StartedAt).Value.TotalMinutes;
                 }
                 return null;
             }

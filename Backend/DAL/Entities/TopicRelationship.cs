@@ -7,7 +7,7 @@ namespace DAL.Entities
         public int RelationshipId { get; set; }
         public int SourceTopicId { get; set; }
         public int TargetTopicId { get; set; }
-        public string RelationshipType { get; set; } // contains, prerequisite_for, required_for, related_to
+        public string? RelationshipType { get; set; } // contains, prerequisite_for, required_for, related_to
         public decimal Weight { get; set; } = 1.00m; // 0.00 - 1.00
 
         // Navigation Properties

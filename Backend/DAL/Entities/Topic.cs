@@ -8,7 +8,7 @@ namespace DAL.Entities
         public int TopicId { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
-        public string Type { get; set; } // Domain, Concept, Technique, Tool, Career
+        public string? Type { get; set; } // Domain, Concept, Technique, Tool, Career
         public int Difficulty { get; set; } = 1;
         public decimal EstimatedHours { get; set; } = 4.00m;
 

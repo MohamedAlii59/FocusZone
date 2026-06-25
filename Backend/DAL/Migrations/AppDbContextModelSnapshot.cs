@@ -62,18 +62,15 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("sysutcdatetime()");
 
                     b.Property<string>("CredentialId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Issuer")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -81,7 +78,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -156,7 +152,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EndDate")
@@ -171,7 +166,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SortOrder")
@@ -250,17 +244,15 @@ namespace DAL.Migrations
                         .HasColumnType("decimal(3,2)");
 
                     b.Property<long>("SessionId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("StudySessionSessionId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("StudySessionSessionId");
 
                     b.Property<int?>("TotalQuestions")
                         .HasColumnType("int");
 
                     b.HasKey("ExamId");
 
-                    b.HasIndex("StudySessionSessionId");
+                    b.HasIndex("SessionId");
 
                     b.ToTable("ExamSessions", t =>
                         {
@@ -291,14 +283,12 @@ namespace DAL.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
@@ -333,7 +323,6 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("GoalId"));
 
                     b.Property<string>("Category")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -342,10 +331,9 @@ namespace DAL.Migrations
                         .HasDefaultValueSql("getutcdate()");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Priority")
+                    b.Property<int?>("Priority")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
@@ -443,21 +431,18 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ProjectId"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Technologies")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -465,7 +450,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Url")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
@@ -535,7 +519,7 @@ namespace DAL.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.Property<int>("EstimatedMinutes")
+                    b.Property<int?>("EstimatedMinutes")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -606,7 +590,6 @@ namespace DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Explanation")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsCorrect")
@@ -646,10 +629,9 @@ namespace DAL.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("SessionSummary")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartedAt")
+                    b.Property<DateTime?>("StartedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
@@ -773,7 +755,6 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TopicId");
@@ -796,7 +777,6 @@ namespace DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RelationshipId"));
 
                     b.Property<string>("RelationshipType")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SourceTopicId")
@@ -871,10 +851,6 @@ namespace DAL.Migrations
 
                     b.Property<int?>("GovernorateId")
                         .HasColumnType("int");
-
-                    b.Property<string>("InterestsToLearn")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -981,29 +957,6 @@ namespace DAL.Migrations
                         {
                             t.HasCheckConstraint("CK_UserDomains_Score", "Score >= 0.00 AND Score <= 1.00");
                         });
-                });
-
-            modelBuilder.Entity("DAL.Entities.UserInterest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Interest")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserInterests");
                 });
 
             modelBuilder.Entity("DAL.Entities.UserTopicMastery", b =>
@@ -1256,7 +1209,7 @@ namespace DAL.Migrations
                 {
                     b.HasOne("DAL.Entities.StudySession", "StudySession")
                         .WithMany()
-                        .HasForeignKey("StudySessionSessionId")
+                        .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1473,17 +1426,6 @@ namespace DAL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DAL.Entities.UserInterest", b =>
-                {
-                    b.HasOne("DAL.Entities.User", "User")
-                        .WithMany("UserInterests")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DAL.Entities.UserTopicMastery", b =>
                 {
                     b.HasOne("DAL.Entities.Topic", "Topic")
@@ -1635,8 +1577,6 @@ namespace DAL.Migrations
                     b.Navigation("TopicMasteries");
 
                     b.Navigation("UserDomains");
-
-                    b.Navigation("UserInterests");
                 });
 #pragma warning restore 612, 618
         }

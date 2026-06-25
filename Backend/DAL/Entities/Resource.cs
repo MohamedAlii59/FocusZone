@@ -11,7 +11,7 @@ namespace DAL.Entities
         public string Url { get; set; }
         public int Difficulty { get; set; } = 1;
         public int Depth { get; set; } = 1;
-        public int EstimatedMinutes { get; set; }
+        public int? EstimatedMinutes { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation Properties

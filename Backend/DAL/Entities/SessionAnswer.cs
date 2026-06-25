@@ -12,7 +12,7 @@ namespace DAL.Entities
         public string UserAnswer { get; set; }
         public string CorrectAnswer { get; set; }
         public bool? IsCorrect { get; set; }
-        public string Explanation { get; set; }
+        public string? Explanation { get; set; }
 
         public virtual ExamSession ExamSession { get; set; }
         public virtual ICollection<AnswerChoice> AnswerChoices { get; set; } = new List<AnswerChoice>();

@@ -27,11 +27,11 @@ namespace BL.Mapper
                 .ForMember(dest => dest.UserTopicMasteries, opt => opt.MapFrom(src => src.TopicMasteries));
 
             // Map child collections
-            CreateMap<Certificate, CertificateDto>();
-            CreateMap<Education, EducationDto>();
-            CreateMap<Experience, ExperienceDto>();
-            CreateMap<Project, ProjectDto>();
-            CreateMap<UserTopicMastery, UserTopicMasteryDto>();
+            CreateMap<Certificate, CertificateDto>().ReverseMap();
+            CreateMap<Education, EducationDto>().ReverseMap();
+            CreateMap<Experience, ExperienceDto>().ReverseMap();
+            CreateMap<Project, ProjectDto>().ReverseMap();
+            CreateMap<UserTopicMastery, UserTopicMasteryDto>().ReverseMap();
 
             // ExamSession mappings
             CreateMap<ExamSession, ExamSessionDto>()
@@ -51,7 +51,8 @@ namespace BL.Mapper
                 .ForMember(dest => dest.EmailConfirmed, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.PhoneNumberConfirmed, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.TwoFactorEnabled, opt => opt.MapFrom(src => false))
-                .ForMember(dest => dest.LockoutEnabled, opt => opt.MapFrom(src => true));
+                .ForMember(dest => dest.LockoutEnabled, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.Goals, opt => opt.Ignore()); // Goals are handled separately in RegisterUserAsync
 
             // Location mappings
             CreateMap<Country, Country>().ReverseMap();
