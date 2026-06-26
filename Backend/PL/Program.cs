@@ -112,6 +112,7 @@ namespace PL
             builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
             builder.Services.AddScoped<IJwtTokenService>(provider =>
                 new JwtTokenService(secretKey, issuer, audience, expirationMinutes, provider.GetRequiredService<UserManager<User>>()));
+            builder.Services.AddScoped<CVService>();
 
             // 9. MVC & Tooling
             builder.Services.AddEndpointsApiExplorer();
