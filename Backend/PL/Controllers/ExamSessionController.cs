@@ -35,6 +35,9 @@ namespace PL.Controllers
                     .ThenInclude(sa => sa.AnswerChoices)
                 .Where(es => es.StudySession != null && es.StudySession.UserId == userId)
                 .ToListAsync();
+            var studySession1 = await _context.StudySessions.ToListAsync();
+            var studySession = await _context.StudySessions.Where(x => x.UserId == userId).FirstOrDefaultAsync();
+            //var examSessions = await _context.ExamSessions.ToListAsync().;
 
             return Ok(_mapper.Map<IEnumerable<ExamSessionDto>>(items));
         }
@@ -78,7 +81,7 @@ namespace PL.Controllers
         // Accepts full ExamSession with SessionAnswers and AnswerChoices
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<ExamSessionDto>> Post([FromBody] ExamSessionDto dto)
+        public async Task<ActionResult<ExamSessionDto>> Post([FromBody] AddExamSessionDto dto)
         {
             if (dto == null)
                 return BadRequest();

@@ -27,7 +27,7 @@ namespace PL.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<UserTopicMasteryDto>>> GetByUser(string userId)
         {
-            var items = await _context.UserTopicMasteries.Where(utm => utm.UserId == userId).ToListAsync();
+            var items = await _context.UserTopicMasteries.Where(utm => utm.UserId == userId).Include(x=>x.Topic).ToListAsync();
             return Ok(_mapper.Map<IEnumerable<UserTopicMasteryDto>>(items));
         }
 

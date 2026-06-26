@@ -31,7 +31,8 @@ namespace BL.Mapper
             CreateMap<Education, EducationDto>().ReverseMap();
             CreateMap<Experience, ExperienceDto>().ReverseMap();
             CreateMap<Project, ProjectDto>().ReverseMap();
-            CreateMap<UserTopicMastery, UserTopicMasteryDto>().ReverseMap();
+            CreateMap<UserTopicMastery, UserTopicMasteryDto>()
+            .ForMember( dest => dest.TopicName, opt => opt.MapFrom(src => src.Topic.Name));
 
             // ExamSession mappings
             CreateMap<ExamSession, ExamSessionDto>()
@@ -39,6 +40,11 @@ namespace BL.Mapper
             CreateMap<StudySession, StudySessionDto>();
             CreateMap<SessionAnswer, SessionAnswerDto>().ReverseMap();
             CreateMap<AnswerChoice, AnswerChoiceDto>().ReverseMap();
+
+
+            CreateMap<AddExamSessionDto, ExamSession>();
+            CreateMap<AddSessionAnswerDto, SessionAnswer>();
+            CreateMap<AddAnswerChoiceDto, AnswerChoice>();
 
             CreateMap<Resource, ResourceBriefDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))

@@ -6,6 +6,7 @@ namespace BL.DTOs.UserTopicMastery
     {
         public string UserId { get; set; }
         public int TopicId { get; set; }
+        public string TopicName { get; set; }
         public decimal Mastery { get; set; }
         public decimal Confidence { get; set; }
         public decimal Interest { get; set; }
