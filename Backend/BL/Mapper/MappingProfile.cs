@@ -72,6 +72,9 @@ namespace BL.Mapper
             // Subscription mapping
             CreateMap<Subscription, SubscriptionDto>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+
+            //goal mapping
+            CreateMap<Goal, GoalDTO>().ReverseMap();
         }
     }
 }

@@ -33,19 +33,20 @@ namespace PL.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Goal>> Post([FromBody] Goal model)
+        public async Task<ActionResult<Goal>> Post([FromBody] GoalDTO model)
         {
             if (model == null)
                 return BadRequest();
 
-            _context.Goals.Add(model);
+            var goal = _mapper.Map<Goal>(model);
+            _context.Goals.Add(goal);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetByUser), new { userId = model.UserId }, model);
         }
 
         [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Put(long id, [FromBody] Goal model)
+        public async Task<IActionResult> Put(long id, [FromBody] GoalDTO model)
         {
             if (id != model.GoalId)
                 return BadRequest();
