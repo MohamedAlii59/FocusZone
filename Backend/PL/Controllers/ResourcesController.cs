@@ -1,9 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
 
 namespace PL.Controllers
 {
@@ -22,20 +18,29 @@ namespace PL.Controllers
         public async Task<IActionResult> CheckResource([FromQuery] string url)
         {
             if (string.IsNullOrWhiteSpace(url))
-                return BadRequest("Url is required");
+                return BadRequest("Url is required.");
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            {
+                return Ok(new
+                {
+                    type = "unknown",
+                    canEmbed = false
+                });
+            }
 
             try
             {
-                var uri = new Uri(url);
-                var host = uri.Host.ToLower();
+                var host = uri.Host.ToLowerInvariant();
 
                 // YouTube
+
                 if (host.Contains("youtube.com") || host.Contains("youtu.be"))
                 {
-                    var oembedUrl =
+                    var oembed =
                         $"https://www.youtube.com/oembed?url={Uri.EscapeDataString(url)}&format=json";
 
-                    var result = await _httpClient.GetAsync(oembedUrl);
+                    var result = await _httpClient.GetAsync(oembed);
 
                     return Ok(new
                     {
@@ -44,46 +49,97 @@ namespace PL.Controllers
                     });
                 }
 
-                using var request = new HttpRequestMessage(HttpMethod.Head, url);
-                using var response = await _httpClient.SendAsync(request);
+                // Request only headers
 
-                var contentType = response.Content.Headers.ContentType?.MediaType ?? "";
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-                // PDF
-                if (contentType.Contains("pdf", StringComparison.OrdinalIgnoreCase) ||
-                    uri.AbsolutePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                request.Headers.UserAgent.ParseAdd(
+                    "Mozilla/5.0");
+
+                using var response = await _httpClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Ok(new
+                    {
+                        type = "unknown",
+                        canEmbed = false
+                    });
+                }
+
+                var contentType =
+                    response.Content.Headers.ContentType?.MediaType ?? "";
+
+                // Detect PDF
+
+                bool isPdf =
+                    contentType.Contains("pdf", StringComparison.OrdinalIgnoreCase)
+                    || uri.AbsolutePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+
+                // Detect HTML
+
+                bool isHtml =
+                    contentType.Contains("text/html", StringComparison.OrdinalIgnoreCase);
+
+                // X-Frame-Options
+
+                string? xFrame = null;
+
+                if (response.Headers.TryGetValues("X-Frame-Options", out var x))
+                    xFrame = x.FirstOrDefault();
+
+                // CSP
+
+                string? csp = null;
+
+                if (response.Headers.TryGetValues("Content-Security-Policy", out var c))
+                    csp = string.Join(";", c);
+
+                // Content-Disposition
+
+                bool attachment =
+                    response.Content.Headers.ContentDisposition?.DispositionType?.Equals(
+                        "attachment",
+                        StringComparison.OrdinalIgnoreCase) == true;
+
+                // Can Embed
+
+                bool canEmbed =
+                    string.IsNullOrWhiteSpace(xFrame) &&
+                    !(csp?.Contains("frame-ancestors",
+                        StringComparison.OrdinalIgnoreCase) ?? false) &&
+                    !attachment;
+
+                // Return PDF
+
+                if (isPdf)
                 {
                     return Ok(new
                     {
                         type = "pdf",
-                        canEmbed = true
+                        canEmbed
                     });
                 }
 
-                // Website / Blog
-                var xFrameOptions = response.Headers
-                    .FirstOrDefault(h => h.Key.Equals(
-                        "X-Frame-Options",
-                        StringComparison.OrdinalIgnoreCase))
-                    .Value
-                    ?.FirstOrDefault();
+                // Return Article
 
-                var csp = response.Headers
-                    .FirstOrDefault(h => h.Key.Equals(
-                        "Content-Security-Policy",
-                        StringComparison.OrdinalIgnoreCase))
-                    .Value
-                    ?.FirstOrDefault();
+                if (isHtml)
+                {
+                    return Ok(new
+                    {
+                        type = "article",
+                        canEmbed
+                    });
+                }
 
-                var canEmbed =
-                    string.IsNullOrEmpty(xFrameOptions) &&
-                    !(csp?.Contains("frame-ancestors",
-                        StringComparison.OrdinalIgnoreCase) ?? false);
+                // Unknown
 
                 return Ok(new
                 {
-                    type = "article",
-                    canEmbed
+                    type = "unknown",
+                    canEmbed = false
                 });
             }
             catch
@@ -94,7 +150,7 @@ namespace PL.Controllers
                     canEmbed = false
                 });
             }
-        } 
+        }
 
     }
 }
