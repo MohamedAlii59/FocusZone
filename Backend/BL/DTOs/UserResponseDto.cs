@@ -16,18 +16,18 @@ namespace BL.DTOs
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? BirthDate { get; set; }
-        public string Mobile { get; set; }
+        public string? Mobile { get; set; }
 
         // Social Links
-        public string LinkedIn { get; set; }
-        public string GitHub { get; set; }
+        public string? LinkedIn { get; set; }
+        public string? GitHub { get; set; }
 
         // Location as simple strings
-        public string Country { get; set; }
-        public string State { get; set; }
-        public string City { get; set; }
+        public string? Country { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
 
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
         public string InterestsToLearn { get; set; }
         public DateTime CreatedOn { get; set; }
         public string ModifierUserId { get; set; }

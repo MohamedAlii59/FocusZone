@@ -11,19 +11,18 @@ namespace DAL.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateTime? BirthDate { get; set; }
-        public string Mobile { get; set; }
+        public string? Mobile { get; set; }
 
-        // Social Links
-        public string LinkedIn { get; set; }
-        public string GitHub { get; set; }
+        // Social Links (nullable)
+        public string? LinkedIn { get; set; }
+        public string? GitHub { get; set; }
 
-        // Location Information
-        // Replaced relational location entities with simple string fields
-        public string Country { get; set; }
-        public string State { get; set; }
-        public string City { get; set; }
+        // Location Information (nullable)
+        public string? Country { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
 
-        public string PostalCode { get; set; }
+        public string? PostalCode { get; set; }
 
         // Subscription and Payment Fields
         public DateTime? SubscriptionEndDate { get; set; }

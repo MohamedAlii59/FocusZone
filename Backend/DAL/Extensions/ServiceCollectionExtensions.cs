@@ -3,6 +3,7 @@ using DAL.Repositories;
 using DAL.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using DAL.Entities;
 
 namespace DAL.Extensions
 {
@@ -69,7 +70,7 @@ namespace DAL.Extensions
             {
                 if (!context.Topics.Any(t => t.Name == domain.Name))
                 {
-                    context.Topics.Add(new DAL.Entities.Topic
+                    context.Topics.Add(new Topic
                     {
                         Name = domain.Name,
                         Type = domain.Type,

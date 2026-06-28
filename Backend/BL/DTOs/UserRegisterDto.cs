@@ -33,14 +33,14 @@ namespace BL.DTOs
         [Phone(ErrorMessage = "Invalid phone number")]
         public string? Mobile { get; set; }
 
-        // Social Links
-        public string LinkedIn { get; set; }
-        public string GitHub { get; set; }
+        // Social Links (nullable)
+        public string? LinkedIn { get; set; }
+        public string? GitHub { get; set; }
 
-        // Location as strings
-        public string Country { get; set; }
-        public string State { get; set; }
-        public string City { get; set; }
+        // Location as strings (nullable)
+        public string? Country { get; set; }
+        public string? State { get; set; }
+        public string? City { get; set; }
 
         [StringLength(10, ErrorMessage = "Postal code must be at most 10 characters")]
         public string? PostalCode { get; set; }
