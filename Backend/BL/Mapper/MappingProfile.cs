@@ -14,11 +14,13 @@ namespace BL.Mapper
     {
         public MappingProfile()
         {
-            // User to UserResponseDto mapping
+            // User to UserResponseDto mapping (location + social links as strings)
             CreateMap<User, UserResponseDto>()
-                .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.Country != null ? src.Country.Name : null))
-                .ForMember(dest => dest.GovernorateName, opt => opt.MapFrom(src => src.Governorate != null ? src.Governorate.Name : null))
-                .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City != null ? src.City.Name : null))
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country))
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.LinkedIn, opt => opt.MapFrom(src => src.LinkedIn))
+                .ForMember(dest => dest.GitHub, opt => opt.MapFrom(src => src.GitHub))
                 .ForMember(dest => dest.Roles, opt => opt.Ignore()) // Roles will be set manually in service
                 .ForMember(dest => dest.Certificates, opt => opt.MapFrom(src => src.Certificates))
                 .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Educations))
@@ -58,12 +60,12 @@ namespace BL.Mapper
                 .ForMember(dest => dest.PhoneNumberConfirmed, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.TwoFactorEnabled, opt => opt.MapFrom(src => false))
                 .ForMember(dest => dest.LockoutEnabled, opt => opt.MapFrom(src => true))
-                .ForMember(dest => dest.Goals, opt => opt.Ignore()); // Goals are handled separately in RegisterUserAsync
-
-            // Location mappings
-            CreateMap<Country, Country>().ReverseMap();
-            CreateMap<Governorate, Governorate>().ReverseMap();
-            CreateMap<City, City>().ReverseMap();
+                .ForMember(dest => dest.Goals, opt => opt.Ignore()) // Goals are handled separately in RegisterUserAsync
+                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.Country))
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.LinkedIn, opt => opt.MapFrom(src => src.LinkedIn))
+                .ForMember(dest => dest.GitHub, opt => opt.MapFrom(src => src.GitHub));
 
             // SubscriptionPlan mapping
             CreateMap<SubscriptionPlan, SubscriptionPlanDto>()

@@ -11,9 +11,7 @@ namespace DAL.Database
         {
         }
 
-        public DbSet<Country> Countries { get; set; }
-        public DbSet<Governorate> Governorates { get; set; }
-        public DbSet<City> Cities { get; set; }
+        // Removed Country/Governorate/City DbSets - location stored on User as strings
         public DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -41,37 +39,7 @@ namespace DAL.Database
             base.OnModelCreating(modelBuilder);
 
             // User Configuration
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Country)
-                .WithMany(c => c.Users)
-                .HasForeignKey(u => u.CountryId)
-                .OnDelete(DeleteBehavior.Restrict); 
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Governorate)
-                .WithMany(g => g.Users)
-                .HasForeignKey(u => u.GovernorateId)
-                .OnDelete(DeleteBehavior.Restrict); 
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.City)
-                .WithMany()
-                .HasForeignKey(u => u.CityId)
-                .OnDelete(DeleteBehavior.Restrict); 
-
-            // Country Configuration
-            modelBuilder.Entity<Country>()
-                .HasMany(c => c.Governorates)
-                .WithOne(g => g.Country)
-                .HasForeignKey(g => g.CountryId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Governorate Configuration
-            modelBuilder.Entity<Governorate>()
-                .HasMany(g => g.Cities)
-                .WithOne(c => c.Governorate)
-                .HasForeignKey(c => c.GovernorateId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // Removed relational location configuration - Country/State/City are now string properties on User
 
             // Subscription Configuration
             modelBuilder.Entity<Subscription>()
