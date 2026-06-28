@@ -23,13 +23,13 @@ namespace BL.Services
 
     public class UserService : IUserService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<User> _user_manager;
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
 
         public UserService(UserManager<User> userManager, AppDbContext context, IMapper mapper)
         {
-            _userManager = userManager;
+            _user_manager = userManager;
             _context = context;
             _mapper = mapper;
         }
@@ -42,12 +42,12 @@ namespace BL.Services
             user.SessionMinutes = 300; // Give 300 free minutes
             user.LastMinutesResetDate = DateTime.UtcNow;
 
-            var result = await _userManager.CreateAsync(user, dto.Password);
+            var result = await _user_manager.CreateAsync(user, dto.Password);
             
             if (result.Succeeded)
             {
                 // Assign "User" role to new registered users
-                await _userManager.AddToRoleAsync(user, "User");
+                await _user_manager.AddToRoleAsync(user, "User");
 
                 // Store goals if provided
                 if (dto.Goals != null && dto.Goals.Length > 0)
@@ -77,10 +77,7 @@ namespace BL.Services
 
         public async Task<UserResponseDto> GetUserByIdAsync(string userId)
         {
-            var user = await _userManager.Users
-                .Include(u => u.Country)
-                .Include(u => u.Governorate)
-                .Include(u => u.City)
+            var user = await _user_manager.Users
                 .Include(u => u.Goals)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -88,7 +85,7 @@ namespace BL.Services
                 return null;
 
             var userDto = _mapper.Map<UserResponseDto>(user);
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _user_manager.GetRolesAsync(user);
             userDto.Roles = roles.ToArray();
 
             return userDto;
@@ -96,7 +93,7 @@ namespace BL.Services
 
         public async Task<IdentityResult> UpdateUserAsync(string userId, UserResponseDto dto)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _user_manager.FindByIdAsync(userId);
             if (user == null)
                 return IdentityResult.Failed(new IdentityError { Description = "User not found" });
 
@@ -104,19 +101,22 @@ namespace BL.Services
             user.LastName = dto.LastName;
             user.BirthDate = dto.BirthDate;
             user.Mobile = dto.Mobile;
-            user.CountryId = dto.CountryId;
-            user.GovernorateId = dto.GovernorateId;
-            user.CityId = dto.CityId;
+            // Map string location fields (if present)
+            if (dto.Country != null) user.Country = dto.Country;
+            if (dto.State != null) user.State = dto.State;
+            if (dto.City != null) user.City = dto.City;
+            if (dto.LinkedIn != null) user.LinkedIn = dto.LinkedIn;
+            if (dto.GitHub != null) user.GitHub = dto.GitHub;
             user.PostalCode = dto.PostalCode;
             user.ModifierUserId = userId;
             user.ModifiedOn = DateTime.UtcNow;
 
-            return await _userManager.UpdateAsync(user);
+            return await _user_manager.UpdateAsync(user);
         }
 
         public async Task<IdentityResult> DeleteUserAsync(string userId, string deleterUserId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _user_manager.FindByIdAsync(userId);
             if (user == null)
                 return IdentityResult.Failed(new IdentityError { Description = "User not found" });
 
@@ -124,7 +124,7 @@ namespace BL.Services
             user.DeleterUserId = deleterUserId;
             user.DeletedOn = DateTime.UtcNow;
 
-            return await _userManager.UpdateAsync(user);
+            return await _user_manager.UpdateAsync(user);
         }
 
         public async Task<User> CreateExternalUserAsync(string email, string firstName, string lastName)
@@ -141,9 +141,9 @@ namespace BL.Services
                 LastMinutesResetDate = DateTime.UtcNow
             };
 
-            await _userManager.CreateAsync(user);
+            await _user_manager.CreateAsync(user);
             // Assign "User" role to external login users
-            await _userManager.AddToRoleAsync(user, "User");
+            await _user_manager.AddToRoleAsync(user, "User");
             
             return user;
         }
@@ -151,22 +151,22 @@ namespace BL.Services
         public async Task<string> GeneratePasswordResetTokenAsync(string email)
         {
             var normalizedEmail = email?.Trim().ToLower();
-            var user = await _userManager.FindByEmailAsync(normalizedEmail);
+            var user = await _user_manager.FindByEmailAsync(normalizedEmail);
             if (user == null)
                 throw new InvalidOperationException("User not found");
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var token = await _user_manager.GeneratePasswordResetTokenAsync(user);
             return token;
         }
 
         public async Task<IdentityResult> ResetPasswordAsync(string email, string token, string newPassword)
         {
             var normalizedEmail = email?.Trim().ToLower();
-            var user = await _userManager.FindByEmailAsync(normalizedEmail);
+            var user = await _user_manager.FindByEmailAsync(normalizedEmail);
             if (user == null)
                 return IdentityResult.Failed(new IdentityError { Description = "User not found" });
 
-            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            var result = await _user_manager.ResetPasswordAsync(user, token, newPassword);
             return result;
         }
     }
