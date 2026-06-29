@@ -76,7 +76,7 @@ namespace BL.Services.Implementation
 
             var userDto = _mapper.Map<UserResponseDto>(user);
             var roles = await _user_manager.GetRolesAsync(user);
-            userDto.Roles = roles.ToArray();
+        //    userDto.Roles = roles.ToArray();
 
             return userDto;
         }
