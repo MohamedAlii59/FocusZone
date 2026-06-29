@@ -97,7 +97,7 @@ namespace BL.Services.Implementation
             if (dto.City != null) user.City = dto.City;
             if (dto.LinkedIn != null) user.LinkedIn = dto.LinkedIn;
             if (dto.GitHub != null) user.GitHub = dto.GitHub;
-            user.PostalCode = dto.PostalCode;
+            if(dto.PostalCode!=null)user.PostalCode = dto.PostalCode;
             user.ModifierUserId = userId;
             user.ModifiedOn = DateTime.UtcNow;
 
