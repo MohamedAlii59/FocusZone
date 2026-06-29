@@ -1,17 +1,13 @@
-using System;
-using System.Collections.Generic;
+
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.Entities;
 using DAL.Database;
-using BL.Services;
 using BL.DTOs;
+using BL.Services.Abstraction;
 
 namespace PL.Controllers
 {

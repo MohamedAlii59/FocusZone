@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BL.Services.Abstraction;
 using DAL.Database;
 using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -13,14 +14,13 @@ namespace PL.Controllers
     [ApiController]
     public class DashboardController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IUserDashboardService _dashboardService;
 
-        public DashboardController(AppDbContext context, IMapper mapper)
+        public DashboardController(IUserDashboardService dashboardService)
         {
-            _context = context;
-            _mapper = mapper;
+            _dashboardService = dashboardService;
         }
+
 
         [HttpGet("dashboard")]
         [Authorize]
@@ -28,26 +28,13 @@ namespace PL.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrWhiteSpace(userId))
                 return Unauthorized();
 
-            var studySessionsCount = await _context.StudySessions.CountAsync(s => s.UserId == userId);
-
-            var passedExamsCount = await _context.ExamSessions.CountAsync(e =>e.Passed == true && e.StudySession != null && e.StudySession.UserId == userId);
-
-            var userTopicMasteryCount = await _context.UserTopicMasteries.CountAsync(u => u.UserId == userId);
-
-            var passRate = studySessionsCount == 0? 0 : Math.Round((double)passedExamsCount / studySessionsCount * 100, 1);
-
-            var result = new UserDashboardDto
-            {
-                StudySessionsCount = studySessionsCount,
-                PassedExamsCount = passedExamsCount,
-                UserTopicMasteryCount = userTopicMasteryCount,
-                PassRate = passRate
-            };
+            var result = await _dashboardService.GetDashboardAsync(userId);
 
             return Ok(result);
         }
+
     }
 }

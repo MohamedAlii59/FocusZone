@@ -1,23 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DAL.Entities;
 using DAL.Database;
 using BL.DTOs;
+using BL.Services.Abstraction;
 
-namespace BL.Services
+namespace BL.Services.Implementation
 {
-    public interface ISubscriptionService
-    {
-        Task<IList<SubscriptionPlanDto>> GetActiveSubscriptionPlansAsync();
-        Task<UserSubscriptionResponseDto> GetUserSubscriptionAsync(string userId);
-        Task<bool> CheckAndUpdateExpiredSubscriptionsAsync();
-        Task<bool> CancelSubscriptionAsync(string userId);
-        Task<IList<PaymentDto>> GetUserPaymentsAsync(string userId);
-    }
+   
 
     public class SubscriptionService : ISubscriptionService
     {

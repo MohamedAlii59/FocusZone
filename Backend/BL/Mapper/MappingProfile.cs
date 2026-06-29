@@ -21,7 +21,7 @@ namespace BL.Mapper
                 .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
                 .ForMember(dest => dest.LinkedIn, opt => opt.MapFrom(src => src.LinkedIn))
                 .ForMember(dest => dest.GitHub, opt => opt.MapFrom(src => src.GitHub))
-                .ForMember(dest => dest.Roles, opt => opt.Ignore()) // Roles will be set manually in service
+                //.ForMember(dest => dest.Roles, opt => opt.Ignore()) // Roles will be set manually in service
                 .ForMember(dest => dest.Certificates, opt => opt.MapFrom(src => src.Certificates))
                 .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Educations))
                 .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Experiences))

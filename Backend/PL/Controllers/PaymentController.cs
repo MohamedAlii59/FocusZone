@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Stripe;
 using DAL.Entities;
 using DAL.Database;
-using BL.Services;
 using BL.DTOs;
 using System.Security.Claims;
+using BL.Services.Abstraction;
 
 namespace PL.Controllers
 {

@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -8,18 +7,11 @@ using Stripe.Checkout;
 using DAL.Entities;
 using DAL.Database;
 using BL.DTOs;
+using BL.Services.Abstraction;
 
-namespace BL.Services
+namespace BL.Services.Implementation
 {
-    public interface IPaymentService
-    {
-        Task<CreatePaymentIntentResponseDto> CreateSubscriptionCheckoutSessionAsync(string userId, int planId);
-        Task<CreatePaymentIntentResponseDto> CreateMinutePurchaseCheckoutSessionAsync(string userId, int minutes);
-        Task<bool> HandlePaymentSuccessAsync(string sessionId, string authenticatedUserId);
-        Task<SubscriptionPlan> GetSubscriptionPlanAsync(int planId);
-        Task<bool> ProcessSubscriptionAsync(string userId, int planId, string sessionId);
-        Task<bool> ProcessMinutesPurchaseAsync(string userId, int minutes, decimal amount);
-    }
+   
 
     public class PaymentService : IPaymentService
     {

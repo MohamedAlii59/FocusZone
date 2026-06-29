@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using DAL.Entities;
+using BL.Services.Abstraction;
 
-namespace BL.Services
+namespace BL.Services.Implementation
 {
-    public interface IJwtTokenService
-    {
-        Task<string> GenerateTokenAsync(User user, int? expirationMinutes = null);
-    }
+  
 
     public class JwtTokenService : IJwtTokenService
     {

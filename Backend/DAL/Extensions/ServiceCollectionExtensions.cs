@@ -1,5 +1,8 @@
 using DAL.Database;
+using DAL.Entities;
 using DAL.Repositories;
+using DAL.Repositories.Abstraction;
+using DAL.Repositories.Implementation;
 using DAL.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +33,8 @@ namespace DAL.Extensions
             // Add repositories for domain logic
             services.AddScoped<GraduationProjectRepository>();
             services.AddScoped<DataMigrationUtility>();
+            services.AddScoped<IGenericRepository<UserTopicMastery>, GenericRepository<UserTopicMastery>>();
+            services.AddScoped<IGenericRepository<ExamSession>, GenericRepository<ExamSession>>();
 
             return services;
         }
