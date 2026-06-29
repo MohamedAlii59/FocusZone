@@ -1,25 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DAL.Entities;
 using DAL.Database;
 using BL.DTOs;
 using AutoMapper;
+using BL.Services.Abstraction;
 
-namespace BL.Services
+namespace BL.Services.Implementation
 {
-    public interface IUserService
-    {
-        Task<IdentityResult> RegisterUserAsync(UserRegisterDto dto, string creatorUserId);
-        Task<UserResponseDto> GetUserByIdAsync(string userId);
-        Task<IdentityResult> UpdateUserAsync(string userId, UserResponseDto dto);
-        Task<IdentityResult> DeleteUserAsync(string userId, string deleterUserId);
-        Task<User> CreateExternalUserAsync(string email, string firstName, string lastName);
-        Task<string> GeneratePasswordResetTokenAsync(string email);
-        Task<IdentityResult> ResetPasswordAsync(string email, string token, string newPassword);
-    }
+    
 
     public class UserService : IUserService
     {

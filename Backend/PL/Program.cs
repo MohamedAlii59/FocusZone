@@ -1,5 +1,8 @@
+using BL.Extensions;
 using BL.Mapper;
 using BL.Services;
+using BL.Services.Abstraction;
+using BL.Services.Implementation;
 using DAL.Database;
 using DAL.Entities;
 using DAL.Extensions; // Essential for AddMergedDatabase
@@ -106,6 +109,7 @@ namespace PL
             builder.Services.AddAutoMapper(m => m.AddProfile(new MappingProfile()));
 
             // 8. Add Business Logic Services
+            builder.Services.AddServices();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();

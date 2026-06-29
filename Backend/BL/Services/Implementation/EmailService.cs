@@ -1,17 +1,14 @@
 using System;
 using System.Net;
 using System.Net.Mail;
-using System.Threading.Tasks;
+using BL.Services.Abstraction;
 using Microsoft.Extensions.Configuration;
 
-namespace BL.Services
+namespace BL.Services.Implementation
 {
     //tsem gpwa xwpy fznk
 
-    public interface IEmailService
-    {
-        Task SendEmailAsync(string to, string subject, string htmlBody);
-    }
+ 
 
     public class EmailService : IEmailService
     {

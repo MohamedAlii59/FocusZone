@@ -1,7 +1,7 @@
 ﻿using BL.DTOs.CV;
 using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
-namespace BL.Services
+namespace BL.Services.Implementation
 {
     public class CVService
     {

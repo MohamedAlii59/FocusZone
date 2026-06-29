@@ -1,73 +1,61 @@
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
+using BL.DTOs.UserTopicMastery;
+using BL.Pagination;
+using BL.Services.Abstraction;
 using DAL.Database;
 using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using BL.DTOs.UserTopicMastery;
-using AutoMapper;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PL.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class UserTopicMasteryController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IUserTopicMasteryService _service;
 
-        public UserTopicMasteryController(AppDbContext context, IMapper mapper)
+        public UserTopicMasteryController(IUserTopicMasteryService service)
         {
-            _context = context;
-            _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<UserTopicMasteryDto>>> GetByUser(string userId)
+        public async Task<IActionResult> Get(string userId,[FromQuery] PaginationParams pagination)
         {
-            var items = await _context.UserTopicMasteries.Where(utm => utm.UserId == userId).Include(x=>x.Topic).ToListAsync();
-            return Ok(_mapper.Map<IEnumerable<UserTopicMasteryDto>>(items));
+            var result = await _service.GetByUserAsync(userId, pagination);
+
+            return Ok(result);
         }
 
+        [Authorize]
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<UserTopicMasteryDto>> Post([FromBody] UserTopicMasteryDto dto)
+        public async Task<IActionResult> Create(UserTopicMasteryDto dto)
         {
-            var entity = _mapper.Map<UserTopicMastery>(dto);
-            _context.UserTopicMasteries.Add(entity);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetByUser), new { userId = entity.UserId }, _mapper.Map<UserTopicMasteryDto>(entity));
+            await _service.CreateAsync(dto);
+
+            return Ok();
         }
 
-        [HttpPut("{userId}/{topicId}")]
         [Authorize]
-        public async Task<IActionResult> Put(string userId, int topicId, [FromBody] UserTopicMasteryDto dto)
+        [HttpPut]
+        public async Task<IActionResult> Update(UserTopicMasteryDto dto)
         {
-            if (userId != dto.UserId || topicId != dto.TopicId)
-                return BadRequest();
+            await _service.UpdateAsync(dto);
 
-            var entity = await _context.UserTopicMasteries.FindAsync(userId, topicId);
-            if (entity == null)
-                return NotFound();
-
-            _mapper.Map(dto, entity);
-            _context.UserTopicMasteries.Update(entity);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        [HttpDelete("{userId}/{topicId}")]
         [Authorize]
-        public async Task<IActionResult> Delete(string userId, int topicId)
+        [HttpDelete("{userId}/{topicId}")]
+        public async Task<IActionResult> Delete( string userId,  int topicId)
         {
-            var entity = await _context.UserTopicMasteries.FindAsync(userId, topicId);
-            if (entity == null)
-                return NotFound();
+            await _service.DeleteAsync(userId, topicId);
 
-            _context.UserTopicMasteries.Remove(entity);
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
