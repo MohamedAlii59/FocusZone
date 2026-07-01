@@ -17,6 +17,7 @@ namespace BL.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddScoped<IResourceCheckService, ResourceCheckService>();
             services.AddScoped<IUserTopicMasteryService, UserTopicMasteryService>();
             services.AddScoped<IExamSessionService, ExamSessionService>();
             services.AddScoped<IUserDashboardService, UserDashboardService>();
