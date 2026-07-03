@@ -35,6 +35,7 @@ namespace DAL.Extensions
             services.AddScoped<DataMigrationUtility>();
             services.AddScoped<IGenericRepository<UserTopicMastery>, GenericRepository<UserTopicMastery>>();
             services.AddScoped<IGenericRepository<ExamSession>, GenericRepository<ExamSession>>();
+            services.AddScoped<IGenericRepository<StudySession>, GenericRepository<StudySession>>();
 
             return services;
         }

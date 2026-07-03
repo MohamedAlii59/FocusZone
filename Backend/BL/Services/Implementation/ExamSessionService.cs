@@ -11,11 +11,13 @@ namespace BL.Services.Implementation
     public class ExamSessionService : IExamSessionService
     {
         private readonly IGenericRepository<ExamSession> _repository;
+        private readonly IGenericRepository<StudySession> _studySessionRepository;
         private readonly IMapper _mapper;
 
-        public ExamSessionService(IGenericRepository<ExamSession> repository, IMapper mapper)
+        public ExamSessionService(IGenericRepository<ExamSession> repository, IGenericRepository<StudySession> studySessionRepository, IMapper mapper)
         {
             _repository = repository;
+            _studySessionRepository= studySessionRepository;
             _mapper = mapper;
         }
 
@@ -145,6 +147,15 @@ namespace BL.Services.Implementation
             _repository.Delete(entity);
 
             await _repository.SaveChangesAsync();
+        }
+
+        public async Task<long?> GetActiveSessionIdAsync(string userId)
+        {
+            var spec = new ActiveStudySessionSpecification(userId);
+
+            var examSession = await _studySessionRepository.FirstOrDefaultAsync(spec);
+
+            return examSession?.SessionId;
         }
     }
 }

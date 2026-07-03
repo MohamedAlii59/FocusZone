@@ -20,5 +20,6 @@ namespace BL.Services.Abstraction
         Task UpdateAsync(int id, ExamSessionDto dto);
 
         Task DeleteAsync(int id);
+        Task<long?> GetActiveSessionIdAsync(string userId);
     }
 }

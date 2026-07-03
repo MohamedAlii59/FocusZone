@@ -2,6 +2,7 @@ using AutoMapper;
 using BL.DTOs.ExamSession;
 using BL.Pagination;
 using BL.Services.Abstraction;
+using BL.Services.Implementation;
 using DAL.Database;
 using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace PL.Controllers
@@ -44,6 +46,7 @@ namespace PL.Controllers
             return Ok(result);
         }
 
+
         [HttpGet("session/{sessionId}/user/{userId}")]
         public async Task<IActionResult> GetBySessionAndUser(  long sessionId, string userId)
         {
@@ -54,6 +57,26 @@ namespace PL.Controllers
 
             return Ok(result);
         }
+
+
+
+        [Authorize]
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveSession()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))return Unauthorized();
+
+            var sessionId = await _service.GetActiveSessionIdAsync(userId);
+
+            return Ok(new
+            {
+                hasActiveSession = sessionId != null,
+                sessionId
+            });
+        }
+
 
         [Authorize]
         [HttpPost]

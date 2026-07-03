@@ -21,7 +21,6 @@ namespace BL.Extensions
             services.AddScoped<IUserTopicMasteryService, UserTopicMasteryService>();
             services.AddScoped<IExamSessionService, ExamSessionService>();
             services.AddScoped<IUserDashboardService, UserDashboardService>();
-
             return services;
         }
     }
