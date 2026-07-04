@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path="DockerFile" />
+  </Folder>
   <Project Path="BL/BL.csproj" />
   <Project Path="DAL/DAL.csproj" />
   <Project Path="PL/PL.csproj" />
