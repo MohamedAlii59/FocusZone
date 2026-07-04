@@ -33,6 +33,8 @@ namespace DAL.Database
         public DbSet<ExamSession> ExamSessions { get; set; }
         public DbSet<SessionAnswer> SessionAnswers { get; set; }
         public DbSet<AnswerChoice> AnswerChoices { get; set; }
+        public DbSet<SessionWhiteList> SessionWhiteLists { get; set; }
+        public DbSet<SessionExamActive> SessionExamActives { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -93,6 +95,7 @@ namespace DAL.Database
             modelBuilder.Entity<Experience>().HasQueryFilter(es => !es.User.IsDeleted);
             modelBuilder.Entity<Education>().HasQueryFilter(es => !es.User.IsDeleted);
             modelBuilder.Entity<Certificate>().HasQueryFilter(es => !es.User.IsDeleted);
+            
 
             // ============= NEW ENTITIES FOR GRADUATION PROJECT =============
 
