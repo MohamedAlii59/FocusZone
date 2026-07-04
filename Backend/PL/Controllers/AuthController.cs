@@ -148,6 +148,18 @@ namespace PL.Controllers
                 var firstName = info.Principal.FindFirstValue(ClaimTypes.GivenName);
                 var lastName = info.Principal.FindFirstValue(ClaimTypes.Surname);
 
+                if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
+                {
+                    var fullName = info.Principal.FindFirstValue("urn:github:name")
+                                   ?? info.Principal.FindFirstValue(ClaimTypes.Name)
+                                   ?? email?.Split('@')[0]
+                                   ?? "User";
+
+                    var parts = fullName.Trim().Split(' ', 2);
+                    firstName = parts[0];
+                    lastName = parts.Length > 1 ? parts[1] : parts[0];
+                }
+
                 // Check if email already exists
                 var existingUser = await _userManager.FindByEmailAsync(email);
                 if (existingUser != null)

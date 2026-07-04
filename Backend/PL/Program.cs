@@ -8,12 +8,14 @@ using DAL.Entities;
 using DAL.Extensions; // Essential for AddMergedDatabase
 using DAL.Repositories;
 using DAL.Utilities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
 namespace PL
 {
     public class Program
@@ -64,6 +66,7 @@ namespace PL
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
+            .AddCookie()
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -90,6 +93,8 @@ namespace PL
                 options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
                 options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
                 options.Scope.Add("user:email");
+                options.ClaimActions.MapJsonKey("urn:github:name", "name");
+                options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
             });
 
             // 6. Add CORS
