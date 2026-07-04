@@ -1,14 +1,16 @@
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using BL.DTOs;
+using BL.Services.Abstraction;
+using DAL.Database;
+using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Stripe;
-using DAL.Entities;
-using DAL.Database;
-using BL.DTOs;
-using System.Security.Claims;
-using BL.Services.Abstraction;
 
 namespace PL.Controllers
 {
@@ -137,7 +139,13 @@ namespace PL.Controllers
                 
                 if (success)
                 {
-                    return Ok(new { success = true, message = "Payment verified successfully" });
+                    var payment = await _context.Payments.FirstOrDefaultAsync(p => p.StripePaymentIntentId == dto.SessionId);
+
+                    return Ok(new
+                    {
+                        success = true,
+                        paymentType = payment.PaymentType.ToString()
+                    });
                 }
 
                 return BadRequest(new { success = false, error = "Payment verification failed" });
