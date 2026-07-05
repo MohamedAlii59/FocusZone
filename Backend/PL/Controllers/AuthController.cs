@@ -99,20 +99,20 @@ namespace PL.Controllers
             if (string.IsNullOrEmpty(provider))
                 return BadRequest(new { error = "Provider is required" });
 
-            // 1. استخراج كل الأنظمة المسجلة في التطبيق ديناميكياً
+      
             var schemes = _signInManager.GetExternalAuthenticationSchemesAsync().Result;
 
-            // 2. البحث عن النظام المطلوب بدون الالتفات لحالة الأحرف (Case-Insensitive)
+            
             var targetScheme = schemes.FirstOrDefault(s =>
                 s.Name.Equals(provider, StringComparison.OrdinalIgnoreCase));
 
-            // 3. إذا لم finds النظام (مثلاً أرسل provider غير موجود كـ facebook وهو غير مسجل)
+           
             if (targetScheme == null)
             {
                 return BadRequest(new { error = $"Provider '{provider}' is not supported." });
             }
 
-            // 4. استخدام الاسم الصحيح تماماً كما هو مسجل بالنظام (سيكون GitHub في حالتك)
+           
             var schemeName = targetScheme.Name;
 
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Auth", null, Request.Scheme);
@@ -189,7 +189,7 @@ namespace PL.Controllers
             // External login tokens expire after 1 day by default
             var token = await _jwtTokenService.GenerateTokenAsync(user, 24 * 60);
 
-            // توجيه المستخدم للفرونت إند مرة أخرى ومعه التوكن والإيميل
+          
             var frontendUrl = $"{_configuration["AppSettings:FrontendUrl"]}/external-login-callback?token={token}&email={Uri.EscapeDataString(user.Email)}";
 
             return Redirect(frontendUrl);
@@ -265,10 +265,10 @@ namespace PL.Controllers
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
 
                 // Build reset URL - frontend will handle the actual reset page
-                // 1. هنعمل Encode للتوكن باستخدام الـ Base64Url-Safe عشان نضمن حمايته من تشويه المتصفحات
+              
                 var encodedToken = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlEncode(System.Text.Encoding.UTF8.GetBytes(resetToken));
 
-                // 2. بنباصي الـ encodedToken الجديد جوه اللينك بدل الـ resetToken الأصلي
+             
                 var resetUrl = $"{_configuration["AppSettings:FrontendUrl"]}/auth/reset-password?email={Uri.EscapeDataString(user.Email)}&token={encodedToken}";
 
                 // Send reset email
@@ -325,11 +325,11 @@ namespace PL.Controllers
                 if (user == null)
                     return BadRequest(new { error = "User not found" });
 
-                // ⚠️ الخطوة السحرية: فك تشفير التوكن وترجيعه لأصله اللي الـ Identity يفهمه
+              
                 var decodedTokenBytes = Microsoft.AspNetCore.WebUtilities.WebEncoders.Base64UrlDecode(model.Token);
                 var originalToken = System.Text.Encoding.UTF8.GetString(decodedTokenBytes);
 
-                // 👈 بنباصي الـ originalToken هنا بدل model.Token
+             
                 var result = await _userManager.ResetPasswordAsync(user, originalToken, model.NewPassword);
 
                 if (result.Succeeded)
