@@ -55,6 +55,7 @@ namespace PL
             var secretKey = jwtSettings["SecretKey"];
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
+            var corsOrigin = builder.Configuration.GetValue<string>("AppSettings:FrontendUrl");
             // Default token expiration: 1 day (1440 minutes) if not configured
             var expirationMinutes = int.Parse(jwtSettings["ExpirationMinutes"] ?? "1440");
 
@@ -103,7 +104,7 @@ namespace PL
                 options.AddPolicy("AllowAll", corsBuilder =>
                 {
                     corsBuilder
-                        .WithOrigins("http://localhost:3000", "http://localhost:4200", "http://127.0.0.1:3000", "http://127.0.0.1:4200")
+                        .WithOrigins(corsOrigin)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
