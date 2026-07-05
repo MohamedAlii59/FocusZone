@@ -28,8 +28,9 @@ namespace BL.Services.Implementation
         {
             var request = new HttpRequestMessage(HttpMethod.Post, _configuration["LatexConverter:BaseUrl"]?.ToString());
             request.Headers.Add("x-api-key", _configuration["LatexConverter:APIKey"]?.ToString());
-            request.Content = JsonContent.Create(dto);
+            request.Content = JsonContent.Create(new {content = dto.content});
             var res = await _httpClient.SendAsync(request);
+            Console.WriteLine(res.StatusCode);
             if (!res.IsSuccessStatusCode)
                 throw new Exception("Conveter Dead !");
             return await res.Content.ReadAsByteArrayAsync();

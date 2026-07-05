@@ -35,8 +35,7 @@ namespace PL.Controllers
                 var pdfBytes = await _cvService.ConvertLatexToPDF(
                     new LatexPostPDFConveterRequestDto
                     {
-                        engine = "xelatex",
-                        latex = latexResponse.latex
+                        content = latexResponse.latex
                     });
 
                 // Return the PDF

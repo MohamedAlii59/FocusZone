@@ -2,7 +2,7 @@
 {
     public class LatexPostPDFConveterRequestDto
     {
-        public string engine { get; set;  }
-        public string latex { get; set; }
+        //public string engine { get; set;  }
+        public string content { get; set; }
     }
 }
